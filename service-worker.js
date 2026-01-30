@@ -1,56 +1,39 @@
-/* Daily Flow PWA service worker */
-const CACHE_NAME = "daily-flow-cache-v3";
-const ASSETS = [
+const CACHE_NAME = "daily-flow-v1";
+
+const FILES_TO_CACHE = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./service-worker.js",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "./icon-192.png",
+  "./icon-512.png"
 ];
 
-// Install: cache core assets
-self.addEventListener("install", (event) => {
+self.addEventListener("install", event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then(cache => {
+      return cache.addAll(FILES_TO_CACHE);
+    })
   );
   self.skipWaiting();
 });
 
-// Activate: cleanup old caches
-self.addEventListener("activate", (event) => {
+self.addEventListener("activate", event => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => (k === CACHE_NAME ? null : caches.delete(k))))
-    )
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys
+          .filter(key => key !== CACHE_NAME)
+          .map(key => caches.delete(key))
+      );
+    })
   );
   self.clients.claim();
 });
 
-// Fetch: network-first for HTML, cache-first for everything else
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  const url = new URL(req.url);
-
-  // Only handle same-origin requests
-  if (url.origin !== location.origin) return;
-
-  // Network-first for navigations (so updates come through)
-  if (req.mode === "navigate") {
-    event.respondWith(
-      fetch(req)
-        .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put("./index.html", copy));
-          return res;
-        })
-        .catch(() => caches.match("./index.html"))
-    );
-    return;
-  }
-
-  // Cache-first for static assets
+self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req))
+    caches.match(event.request).then(response => {
+      return response || fetch(event.request);
+    })
   );
 });
