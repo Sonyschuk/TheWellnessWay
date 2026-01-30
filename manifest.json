@@ -2,13 +2,13 @@
   "name": "Daily Flow — 6 Pillars",
   "short_name": "Daily Flow",
   "description": "A visual daily pattern tracker across 6 wellness pillars.",
-  "start_url": "./",
-  "scope": "./",
+  "start_url": "/TheWellnessWay/",
+  "scope": "/TheWellnessWay/",
   "display": "standalone",
   "background_color": "#0b1220",
   "theme_color": "#0b1220",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/TheWellnessWay/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/TheWellnessWay/icon-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }
