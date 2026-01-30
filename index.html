@@ -33,10 +33,15 @@
     .topbar{display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;}
     h1{margin:0; font-size:22px; letter-spacing:.2px}
     .date{color:var(--muted); font-size:14px; margin-top:4px}
+
     .btnrow{display:flex; gap:10px; flex-wrap:wrap}
     button{
       background:transparent; border:1px solid var(--line); color:var(--text);
-      padding:10px 12px; border-radius:12px; cursor:pointer;
+      padding:12px 14px;
+      border-radius:12px; cursor:pointer;
+      font-size:15px; /* bigger buttons */
+      font-weight:650;
+      letter-spacing:.2px;
     }
     button:hover{border-color:rgba(255,255,255,.2)}
     .card{
@@ -47,8 +52,9 @@
       box-shadow: 0 10px 30px rgba(0,0,0,.25);
       margin-top:14px;
     }
-    .sectionTitle{font-weight:750; margin:0 0 8px 0}
+    .sectionTitle{font-weight:800; margin:0 0 8px 0}
     .subtle{color:var(--muted); font-size:13px; line-height:1.35}
+
     .layout{
       margin-top:14px;
       display:grid;
@@ -56,14 +62,21 @@
       gap:14px;
     }
 
-    /* Grid with AM/PM header row */
+    /* Key fix: minmax(0, 1fr) to prevent uneven column sizing on mobile */
     .grid{
       margin-top:12px;
       display:grid;
-      grid-template-columns: 170px repeat(6, 1fr);
+      grid-template-columns: 170px repeat(6, minmax(0, 1fr));
       gap:10px;
       align-items:stretch;
     }
+    .weeklyGrid, .monthlyGrid{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: 170px repeat(6, minmax(0, 1fr));
+      gap:10px;
+    }
+
     .hdr{
       color:var(--muted);
       font-size:12px;
@@ -75,6 +88,9 @@
       align-items:center;
       justify-content:center;
       text-align:center;
+      white-space:nowrap; /* prevent wrapping that causes odd sizing */
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .hdr.left{justify-content:flex-start;border-bottom:none;padding:0}
     .hdrBand{
@@ -88,8 +104,9 @@
       display:inline-block;
       padding:10px 0;
       width:100%;
-      font-weight:700;
+      font-weight:800;
       letter-spacing:.18em;
+      white-space:nowrap;
     }
 
     .pill{
@@ -98,7 +115,7 @@
       border:1px solid var(--line);
       border-radius:14px;
       background: rgba(255,255,255,.02);
-      font-weight:650;
+      font-weight:750;
     }
     .cell{
       border:1px solid var(--line);
@@ -127,14 +144,7 @@
     .dot.on{background:rgba(255,95,162,.35); border-color:rgba(255,95,162,.55)}
     .small{font-size:12px}
 
-    /* Weekly */
-    .weeklyGrid{
-      margin-top:10px;
-      display:grid;
-      grid-template-columns: 170px repeat(6, 1fr);
-      gap:10px;
-    }
-    .wkcell{
+    .wkcell, .mkcell{
       border:1px solid var(--line);
       border-radius:14px;
       padding:10px;
@@ -144,8 +154,10 @@
       justify-content:center;
       color:var(--muted);
       background: rgba(255,255,255,.02);
+      white-space:nowrap;
     }
-    .wkcell strong{color:var(--text)}
+    .wkcell strong, .mkcell strong{color:var(--text)}
+
     .insights{margin-top:10px;display:grid;grid-template-columns:1fr;gap:10px}
     .insightBox{border:1px solid var(--line);border-radius:14px;padding:12px;background: rgba(255,255,255,.02)}
     ul.clean{margin:8px 0 0 18px; padding:0}
@@ -153,7 +165,7 @@
 
     /* Calendar */
     .calTop{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
-    .calTitle{font-weight:750}
+    .calTitle{font-weight:800}
     .calBtns{display:flex; gap:8px; flex-wrap:wrap}
     .calendar{
       margin-top:10px;
@@ -168,6 +180,9 @@
       letter-spacing:.12em;
       padding:8px 6px;
       border-bottom:1px solid var(--line);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
     }
     .day{
       border:1px solid var(--line);
@@ -260,12 +275,14 @@
     .toast .sub{color:var(--muted); font-size:12px; margin-top:2px}
     .toast .stack{display:flex; flex-direction:column}
 
-    details summary{cursor:pointer; font-weight:650}
+    details summary{cursor:pointer; font-weight:700}
 
     @media(max-width:980px){
       .layout{grid-template-columns: 1fr}
-      .grid,.weeklyGrid{grid-template-columns: 130px repeat(6, 1fr)}
+      .grid,.weeklyGrid,.monthlyGrid{grid-template-columns: 120px repeat(6, minmax(0, 1fr))}
       .pill{padding:12px 10px}
+      button{font-size:16px; padding:12px 14px;} /* phone-friendly */
+      .hdr{font-size:11px;}
     }
   </style>
 </head>
@@ -278,14 +295,15 @@
       </div>
       <div class="btnrow">
         <button id="btnToday">Today</button>
-        <button id="btnWeekly">Weekly View</button>
-        <button id="btnClearActive">Clear This Day</button>
+        <button id="btnWeekly">Weekly</button>
+        <button id="btnMonthly">Monthly</button>
+        <button id="btnClearActive">Clear Day</button>
         <button id="btnOpenIO">Import / Export</button>
       </div>
     </div>
 
     <div class="layout">
-      <!-- Left: Daily / Weekly -->
+      <!-- Left: Daily / Weekly / Monthly -->
       <div>
         <div class="card" id="viewToday">
           <p class="sectionTitle">Daily Map</p>
@@ -300,28 +318,36 @@
 
         <div class="card" id="viewWeekly" style="display:none;">
           <p class="sectionTitle">Weekly Heatmap (last 7 days)</p>
-          <p class="subtle">Intensity is based on how many days that slot was selected (0–7) in the last week.</p>
+          <p class="subtle">Intensity is based on how many days that slot was selected (0–7).</p>
           <div class="weeklyGrid" id="weeklyGrid"></div>
-          <div class="insights" id="insights"></div>
+          <div class="insights" id="weeklyInsights"></div>
+        </div>
+
+        <div class="card" id="viewMonthly" style="display:none;">
+          <p class="sectionTitle">Monthly Summary</p>
+          <p class="subtle" id="monthlyLabel">Intensity is based on how many days that slot was selected in the month.</p>
+          <div class="monthlyGrid" id="monthlyGrid"></div>
+          <div class="insights" id="monthlyInsights"></div>
         </div>
 
         <!-- Import / Export panel (collapsible) -->
         <div class="card" id="ioCard" style="display:none;">
           <p class="sectionTitle">Import / Export</p>
-          <p class="subtle">Best workflow: <strong>Copy</strong> on one device → paste here → <strong>Import</strong> on another.</p>
+          <p class="subtle">Best workflow: <strong>Share</strong> or <strong>Copy</strong> on one device → paste/import on another.</p>
 
           <div class="rowBtns">
-            <button class="pillbtn good" id="btnCopyAll">Copy All Data</button>
+            <button class="pillbtn good" id="btnShareAll">Share</button>
+            <button class="pillbtn good" id="btnCopyAll">Copy</button>
             <button class="pillbtn" id="btnDownloadJson">Download JSON</button>
-            <button class="pillbtn" id="btnUploadFile">Import from File</button>
-            <button class="pillbtn warn" id="btnImportPaste">Import from Paste</button>
+            <button class="pillbtn" id="btnUploadFile">Import file</button>
+            <button class="pillbtn warn" id="btnImportPaste">Import paste</button>
             <button class="pillbtn bad" id="btnCloseIO">Close</button>
           </div>
 
           <div class="ioGrid">
             <textarea id="ioText" placeholder="Paste your data here (JSON)..."></textarea>
             <div class="hint">
-              Tip: If you ever accidentally saved a .txt, it’s fine — open it, copy all contents, paste here, then click <strong>Import from Paste</strong>.
+              Tip: if you accidentally saved a .txt, open it, copy all, paste here, then <strong>Import paste</strong>.
             </div>
           </div>
         </div>
@@ -351,18 +377,18 @@
       </div>
     </div>
 
-    <!-- Pillar Descriptions moved to bottom -->
+    <!-- Pillar Descriptions at bottom -->
     <div class="card">
       <details>
         <summary>Pillar Descriptions</summary>
-        <div class="desc">
-          <ol>
-            <li><strong>Energy</strong> — Find patterns to help you map your day according to your natural energy levels. You are not yourself when tired and hungry.</li>
-            <li><strong>Mind</strong> — Prioritize mental health and put positive psychology into action with daily intentions, brain dumps, and gratitude affirmations.</li>
-            <li><strong>Movement</strong> — Celebrate movement, from seated stretches to gentle walks and high-impact activities.</li>
-            <li><strong>Nourishment</strong> — Let go of rigid goals to make space for favorite recipes and food that makes your body and mind feel good.</li>
-            <li><strong>Connection</strong> — Foster kind, inspiring moments with the people and things that lift you up — experiences, culture, or in-person interactions.</li>
-            <li><strong>Rest</strong> — The antidote to “to-do”. Build screen-free downtime into your day and explore stillness, micro naps, and meditations.</li>
+        <div class="subtle" style="margin-top:10px;">
+          <ol style="margin:8px 0 0 18px; padding:0; line-height:1.35;">
+            <li style="margin:8px 0;"><strong>Energy</strong> — Find patterns to help you map your day according to your natural energy levels. You are not yourself when tired and hungry.</li>
+            <li style="margin:8px 0;"><strong>Mind</strong> — Prioritize mental health and put positive psychology into action with daily intentions, brain dumps, and gratitude affirmations.</li>
+            <li style="margin:8px 0;"><strong>Movement</strong> — Celebrate movement, from seated stretches to gentle walks and high-impact activities.</li>
+            <li style="margin:8px 0;"><strong>Nourishment</strong> — Let go of rigid goals to make space for favorite recipes and food that makes your body and mind feel good.</li>
+            <li style="margin:8px 0;"><strong>Connection</strong> — Foster kind, inspiring moments with the people and things that lift you up — experiences, culture, or in-person interactions.</li>
+            <li style="margin:8px 0;"><strong>Rest</strong> — The antidote to “to-do”. Build screen-free downtime into your day and explore stillness, micro naps, and meditations.</li>
           </ol>
         </div>
       </details>
@@ -381,23 +407,31 @@
 <script>
   const PILLARS = ["Energy","Mind","Movement","Nourishment","Connection","Rest"];
   const SLOTS = ["Early AM","Mid AM","Late AM","Early PM","Mid PM","Late PM"];
-  const STORE_KEY = "dailyFlow.pillars.v4";
+  const STORE_KEY = "dailyFlow.pillars.v5";
 
   const elActiveLabel = document.getElementById("activeLabel");
-  const elGrid = document.getElementById("grid");
-  const elWeeklyGrid = document.getElementById("weeklyGrid");
-  const elInsights = document.getElementById("insights");
 
   const viewToday = document.getElementById("viewToday");
   const viewWeekly = document.getElementById("viewWeekly");
+  const viewMonthly = document.getElementById("viewMonthly");
+
+  const elGrid = document.getElementById("grid");
+  const elWeeklyGrid = document.getElementById("weeklyGrid");
+  const elMonthlyGrid = document.getElementById("monthlyGrid");
+
+  const elWeeklyInsights = document.getElementById("weeklyInsights");
+  const elMonthlyInsights = document.getElementById("monthlyInsights");
+  const elMonthlyLabel = document.getElementById("monthlyLabel");
 
   const btnToday = document.getElementById("btnToday");
   const btnWeekly = document.getElementById("btnWeekly");
+  const btnMonthly = document.getElementById("btnMonthly");
   const btnClearActive = document.getElementById("btnClearActive");
   const btnOpenIO = document.getElementById("btnOpenIO");
 
   const ioCard = document.getElementById("ioCard");
   const btnCloseIO = document.getElementById("btnCloseIO");
+  const btnShareAll = document.getElementById("btnShareAll");
   const btnCopyAll = document.getElementById("btnCopyAll");
   const btnDownloadJson = document.getElementById("btnDownloadJson");
   const btnUploadFile = document.getElementById("btnUploadFile");
@@ -474,6 +508,13 @@
     renderCalendar();
     renderHistoryList();
     if(viewWeekly.style.display !== "none") renderWeekly();
+    if(viewMonthly.style.display !== "none") renderMonthly();
+  }
+
+  function showView(which){
+    viewToday.style.display = (which==="today") ? "" : "none";
+    viewWeekly.style.display = (which==="weekly") ? "" : "none";
+    viewMonthly.style.display = (which==="monthly") ? "" : "none";
   }
 
   function renderToday(){
@@ -517,6 +558,7 @@
           renderCalendar();
           renderHistoryList();
           if(viewWeekly.style.display !== "none") renderWeekly();
+          if(viewMonthly.style.display !== "none") renderMonthly();
 
           toast("Saved", `${pillar} • ${SLOTS[i]} • ${activeDateKey}`);
         });
@@ -536,10 +578,8 @@
     return keys;
   }
 
-  function renderWeekly(){
+  function computeCountsForKeys(keys){
     const all = loadAll();
-    const keys = getLastNDaysKeys(activeDateKey, 7);
-
     const counts = {};
     for(const p of PILLARS) counts[p] = Array(6).fill(0);
 
@@ -550,29 +590,31 @@
         for(let i=0;i<6;i++) counts[p][i] += (arr[i] ? 1 : 0);
       }
     }
-
-    elWeeklyGrid.innerHTML = "";
-    elWeeklyGrid.appendChild(cellDiv("", "hdr"));
-    for(const s of SLOTS) elWeeklyGrid.appendChild(cellDiv(s, "hdr"));
-
-    for(const p of PILLARS){
-      elWeeklyGrid.appendChild(pillDiv(p));
-      for(let i=0;i<6;i++){
-        const val = counts[p][i]; // 0..7
-        const pct = val / 7;
-        const c = document.createElement("div");
-        c.className = "wkcell";
-        c.style.background = `rgba(255, 95, 162, ${0.04 + pct * 0.34})`;
-        c.style.borderColor = `rgba(255, 255, 255, ${0.08 + pct * 0.25})`;
-        c.innerHTML = `<strong>${val}</strong><span class="small">/7</span>`;
-        elWeeklyGrid.appendChild(c);
-      }
-    }
-
-    renderInsights(counts);
+    return counts;
   }
 
-  function renderInsights(counts){
+  function renderHeatmap(targetGridEl, counts, denom){
+    targetGridEl.innerHTML = "";
+    targetGridEl.appendChild(cellDiv("", "hdr"));
+    for(const s of SLOTS) targetGridEl.appendChild(cellDiv(s, "hdr"));
+
+    for(const p of PILLARS){
+      targetGridEl.appendChild(pillDiv(p));
+      for(let i=0;i<6;i++){
+        const val = counts[p][i];
+        const pct = denom ? (val / denom) : 0;
+        const c = document.createElement("div");
+        c.className = (denom === 7 ? "wkcell" : "mkcell");
+        c.style.background = `rgba(255, 95, 162, ${0.04 + pct * 0.34})`;
+        c.style.borderColor = `rgba(255, 255, 255, ${0.08 + pct * 0.25})`;
+        c.innerHTML = `<strong>${val}</strong><span class="small">/${denom}</span>`;
+        targetGridEl.appendChild(c);
+      }
+    }
+  }
+
+  function renderInsights(targetEl, counts, label, denom){
+    // peak per pillar
     const perPillar = [];
     for(const p of PILLARS){
       let bestI = 0;
@@ -580,6 +622,7 @@
       perPillar.push({pillar:p, slot:bestI, val:counts[p][bestI]});
     }
 
+    // top overall slots
     const slotTotals = Array(6).fill(0);
     for(const p of PILLARS){
       for(let i=0;i<6;i++) slotTotals[i] += counts[p][i];
@@ -589,24 +632,25 @@
       .sort((a,b)=>b.v-a.v)
       .slice(0,3);
 
+    // most consistent pillar
     const pillarTotals = PILLARS.map(p => ({
       pillar:p,
       v: counts[p].reduce((a,b)=>a+b,0)
     })).sort((a,b)=>b.v-a.v);
 
-    elInsights.innerHTML = "";
+    targetEl.innerHTML = "";
 
     const box1 = document.createElement("div");
     box1.className = "insightBox";
     box1.innerHTML = `
-      <div class="sectionTitle" style="margin:0;">Insights (ending ${activeDateKey})</div>
-      <div class="subtle">Your patterns over the last 7 days.</div>
+      <div class="sectionTitle" style="margin:0;">Insights (${label})</div>
+      <div class="subtle">Based on selections in this period.</div>
     `;
 
     const box2 = document.createElement("div");
     box2.className = "insightBox";
     box2.innerHTML = `
-      <div style="font-weight:700;">Top time slots (overall)</div>
+      <div style="font-weight:800;">Top time slots (overall)</div>
       <ul class="clean subtle">
         ${topSlots.map(s => `<li><strong>${SLOTS[s.i]}</strong> — ${s.v} total selections</li>`).join("")}
       </ul>
@@ -615,23 +659,50 @@
     const box3 = document.createElement("div");
     box3.className = "insightBox";
     box3.innerHTML = `
-      <div style="font-weight:700;">Peak slot per pillar</div>
+      <div style="font-weight:800;">Peak slot per pillar</div>
       <ul class="clean subtle">
-        ${perPillar.map(x => `<li><strong>${x.pillar}</strong> — ${SLOTS[x.slot]} (${x.val}/7)</li>`).join("")}
+        ${perPillar.map(x => `<li><strong>${x.pillar}</strong> — ${SLOTS[x.slot]} (${x.val}/${denom})</li>`).join("")}
       </ul>
     `;
 
     const box4 = document.createElement("div");
     box4.className = "insightBox";
     box4.innerHTML = `
-      <div style="font-weight:700;">Most consistent pillar</div>
-      <div class="subtle"><strong>${pillarTotals[0].pillar}</strong> — ${pillarTotals[0].v} selections this week</div>
+      <div style="font-weight:800;">Most consistent pillar</div>
+      <div class="subtle"><strong>${pillarTotals[0].pillar}</strong> — ${pillarTotals[0].v} selections</div>
     `;
 
-    elInsights.appendChild(box1);
-    elInsights.appendChild(box2);
-    elInsights.appendChild(box3);
-    elInsights.appendChild(box4);
+    targetEl.appendChild(box1);
+    targetEl.appendChild(box2);
+    targetEl.appendChild(box3);
+    targetEl.appendChild(box4);
+  }
+
+  function renderWeekly(){
+    const keys = getLastNDaysKeys(activeDateKey, 7);
+    const counts = computeCountsForKeys(keys);
+    renderHeatmap(elWeeklyGrid, counts, 7);
+    renderInsights(elWeeklyInsights, counts, `ending ${activeDateKey}`, 7);
+  }
+
+  function getMonthKeysFor(dateKey){
+    const d = parseDateKey(dateKey);
+    const y = d.getFullYear();
+    const m = d.getMonth(); // 0-based
+    const daysInMonth = new Date(y, m+1, 0).getDate();
+    const keys = [];
+    for(let day=1; day<=daysInMonth; day++){
+      keys.push(isoLocalDate(new Date(y, m, day)));
+    }
+    return { keys, daysInMonth, label: monthName(new Date(y, m, 1)) };
+  }
+
+  function renderMonthly(){
+    const { keys, daysInMonth, label } = getMonthKeysFor(activeDateKey);
+    const counts = computeCountsForKeys(keys);
+    elMonthlyLabel.textContent = `Month: ${label} — intensity is based on how many days that slot was selected (0–${daysInMonth}).`;
+    renderHeatmap(elMonthlyGrid, counts, daysInMonth);
+    renderInsights(elMonthlyInsights, counts, label, daysInMonth);
   }
 
   function renderCalendar(){
@@ -717,9 +788,7 @@
   }
 
   // Import/Export helpers
-  function getAllData(){
-    return loadAll();
-  }
+  function getAllData(){ return loadAll(); }
   function downloadJson(data){
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
     const a = document.createElement("a");
@@ -737,18 +806,65 @@
     saveAll(merged);
   }
 
-  // Buttons
+  async function shareData(){
+    const dataObj = getAllData();
+    const jsonPretty = JSON.stringify(dataObj, null, 2);
+    const jsonCompact = JSON.stringify(dataObj);
+
+    // Web Share API (mobile). Files sharing works on many modern browsers.
+    try{
+      if(navigator.share){
+        const blob = new Blob([jsonPretty], {type:"application/json"});
+        const file = new File([blob], "daily-flow-data.json", {type:"application/json"});
+        // Some browsers support files, some only text.
+        const canFiles = navigator.canShare && navigator.canShare({ files: [file] });
+
+        if(canFiles){
+          await navigator.share({
+            title: "Daily Flow Data",
+            text: "Daily Flow export",
+            files: [file]
+          });
+          toast("Shared", "Sent daily-flow-data.json");
+          return;
+        }else{
+          await navigator.share({
+            title: "Daily Flow Data",
+            text: jsonPretty
+          });
+          toast("Shared", "Shared as text");
+          return;
+        }
+      }
+    }catch(e){
+      // fall through to copy
+    }
+
+    // Fallback: copy
+    try{
+      await copyToClipboard(jsonCompact);
+      toast("Copied", "Share not available — copied to clipboard");
+    }catch(e){
+      toast("Share failed", "Use Download JSON instead");
+    }
+  }
+
+  // View buttons
   btnToday.addEventListener("click", ()=>{
-    viewToday.style.display = "";
-    viewWeekly.style.display = "none";
+    showView("today");
     toast("Today view", activeDateKey);
   });
 
   btnWeekly.addEventListener("click", ()=>{
-    viewToday.style.display = "none";
-    viewWeekly.style.display = "";
+    showView("weekly");
     renderWeekly();
-    toast("Weekly view", `Last 7 days ending ${activeDateKey}`);
+    toast("Weekly view", `Ending ${activeDateKey}`);
+  });
+
+  btnMonthly.addEventListener("click", ()=>{
+    showView("monthly");
+    renderMonthly();
+    toast("Monthly view", activeDateKey);
   });
 
   btnClearActive.addEventListener("click", ()=>{
@@ -757,24 +873,25 @@
     saveAll(all);
     renderToday(); renderCalendar(); renderHistoryList();
     if(viewWeekly.style.display !== "none") renderWeekly();
+    if(viewMonthly.style.display !== "none") renderMonthly();
     toast("Cleared", `Removed entries for ${activeDateKey}`);
   });
 
+  // Import/Export panel
   btnOpenIO.addEventListener("click", ()=>{
     ioCard.style.display = (ioCard.style.display === "none" ? "" : "none");
     if(ioCard.style.display !== "none"){
-      // prefill with current data so copy/paste is easy
       ioText.value = JSON.stringify(getAllData(), null, 2);
-      toast("Import/Export", "Copy or paste data here");
-      // scroll to card gently
+      toast("Import/Export", "Share, copy, or paste data");
       ioCard.scrollIntoView({behavior:"smooth", block:"start"});
     }
   });
-
   btnCloseIO.addEventListener("click", ()=>{
     ioCard.style.display = "none";
     toast("Closed", "Import/Export panel");
   });
+
+  btnShareAll.addEventListener("click", shareData);
 
   btnCopyAll.addEventListener("click", async ()=>{
     try{
@@ -782,7 +899,7 @@
       await copyToClipboard(text);
       toast("Copied", "All data copied to clipboard");
     }catch(e){
-      toast("Copy failed", "Browser blocked clipboard — use Download JSON instead");
+      toast("Copy failed", "Use Download JSON instead");
     }
   });
 
@@ -799,15 +916,16 @@
       const file = input.files[0];
       if(!file) return;
       const text = await file.text();
-      ioText.value = text; // show what was loaded
+      ioText.value = text;
       try{
         const incoming = JSON.parse(text);
         mergeAndSave(incoming);
         renderToday(); renderCalendar(); renderHistoryList();
         if(viewWeekly.style.display !== "none") renderWeekly();
+        if(viewMonthly.style.display !== "none") renderMonthly();
         toast("Imported", "File imported & merged");
       }catch(e){
-        toast("Import failed", "File content isn't valid JSON — try copy/paste instead");
+        toast("Import failed", "File content isn't valid JSON — use paste import");
       }
     };
     input.click();
@@ -815,21 +933,20 @@
 
   btnImportPaste.addEventListener("click", ()=>{
     const text = (ioText.value || "").trim();
-    if(!text){
-      toast("Nothing to import", "Paste data first");
-      return;
-    }
+    if(!text){ toast("Nothing to import", "Paste data first"); return; }
     try{
       const incoming = JSON.parse(text);
       mergeAndSave(incoming);
       renderToday(); renderCalendar(); renderHistoryList();
       if(viewWeekly.style.display !== "none") renderWeekly();
+      if(viewMonthly.style.display !== "none") renderMonthly();
       toast("Imported", "Pasted data merged successfully");
     }catch(e){
       toast("Import failed", "That paste isn't valid JSON");
     }
   });
 
+  // Calendar navigation
   btnPrevMonth.addEventListener("click", ()=>{
     calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1);
     renderCalendar();
@@ -845,7 +962,7 @@
     toast("Jumped to today", isoLocalDate(t));
   });
 
-  // PWA registration
+  // PWA
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try{ await navigator.serviceWorker.register("./service-worker.js"); }
@@ -859,6 +976,7 @@
   renderToday();
   renderCalendar();
   renderHistoryList();
+  showView("today");
 </script>
 </body>
 </html>
