@@ -46,6 +46,7 @@
     button:hover{border-color:rgba(255,255,255,.2)}
     button.primary{border-color:rgba(255,255,255,.20)}
     button.hidden{display:none}
+    .miniBtn{padding:8px 10px;font-size:13px;border-radius:12px}
 
     .layout{
       margin-top:14px;
@@ -138,7 +139,7 @@
     }
     .hmcell strong{color:var(--text)}
 
-    /* --------- Journal blocks --------- */
+    /* --------- Journal (single display) --------- */
     .journalBox{
       margin-top:10px;
       border:1px solid var(--line);
@@ -147,43 +148,24 @@
       padding:12px;
     }
     .journalTop{
-      display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
-      gap:10px;
-      flex-wrap:wrap;
+      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;
     }
     .journalTitle{font-weight:800;margin:0}
-    .journalActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-    .miniBtn{padding:8px 10px;font-size:13px;border-radius:12px}
-
-    textarea{
-      width:100%;
-      margin-top:10px;
-      min-height:92px;
-      background: rgba(15,23,41,.75);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:14px;
-      color: var(--text);
-      padding:12px;
-      resize: vertical;
-      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-      font-size:14px;
-      line-height:1.35;
-    }
-    .displayBlock{
+    .journalText{
       margin-top:10px;
       padding:12px;
       border-radius:14px;
       background: rgba(15,23,41,.45);
       border:1px solid rgba(255,255,255,.06);
-      color: var(--text);
       white-space:pre-wrap;
     }
+    .journalText .label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+    .journalText .value{display:block;color:var(--text);font-size:14px;line-height:1.35}
+    .journalText .empty{color:var(--muted)}
 
     .dots{
       display:flex;
-      gap:8px;
+      gap:10px;
       align-items:center;
       margin-top:10px;
       flex-wrap:wrap;
@@ -202,10 +184,20 @@
       box-shadow: 0 0 0 3px rgba(255,95,162,.14) inset;
     }
 
-    /* --------- Pillar descriptions --------- */
-    .descList{margin:10px 0 0 0; padding-left:18px; color:var(--text);}
-    .descList li{margin:8px 0}
-    .descList span{color:var(--muted)}
+    /* Pillar descriptions */
+    .descWrap{margin-top:14px}
+    .descPanel{
+      margin-top:10px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(255,255,255,.02);
+      padding:12px;
+      display:none;
+    }
+    .descPanel.show{display:block}
+    .descItem{margin-top:10px}
+    .descItem strong{color:var(--text)}
+    .descItem div{color:var(--muted);font-size:13px;line-height:1.35;margin-top:4px}
 
     /* --------- History --------- */
     .calTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -274,6 +266,58 @@
     .view{display:none}
     .view.active{display:block}
 
+    /* --------- MODAL (Edit intention + gratitude) --------- */
+    .overlay{
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,.55);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:999;
+    }
+    .overlay.show{display:flex}
+    .modal{
+      width:min(720px, 100%);
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,.10);
+      background: rgba(15,23,41,.96);
+      box-shadow: 0 18px 60px rgba(0,0,0,.6);
+      padding:16px;
+    }
+    .modalTop{
+      display:flex;
+      justify-content:space-between;
+      gap:12px;
+      flex-wrap:wrap;
+      align-items:flex-start;
+    }
+    .modal h2{margin:0;font-size:16px}
+    .modal .hint{color:var(--muted);font-size:12px;margin-top:4px}
+    .field{margin-top:12px}
+    .field label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
+    .modal textarea{
+      width:100%;
+      min-height:92px;
+      background: rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      color: var(--text);
+      padding:12px;
+      resize: vertical;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-size:14px;
+      line-height:1.35;
+    }
+    .modalActions{
+      margin-top:12px;
+      display:flex;
+      justify-content:flex-end;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
     /* Mobile */
     @media(max-width:980px){
       .layout{grid-template-columns:1fr}
@@ -308,49 +352,67 @@
           <p class="sectionTitle">Daily Map</p>
           <p class="subtle">Tap where you feel strongest. Multiple selections are allowed.</p>
 
-          <!-- Intention -->
+          <!-- Journal: display only (edit is modal) -->
           <div class="journalBox">
             <div class="journalTop">
               <div>
-                <div class="journalTitle">Daily Intention</div>
-                <div class="small">A short sentence for how you want to show up today.</div>
+                <div class="journalTitle">Daily Intention + Gratitude</div>
+                <div class="small">A simple journaling layer to anchor your day.</div>
               </div>
-              <div class="journalActions">
-                <button class="miniBtn" id="btnEditIntention">Edit</button>
-                <button class="miniBtn hidden" id="btnSaveIntention">Save</button>
-                <button class="miniBtn hidden" id="btnCancelIntention">Cancel</button>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <button class="miniBtn" id="btnEditJournal">Edit</button>
               </div>
             </div>
 
-            <div id="intentionDisplay" class="displayBlock">No intention yet — tap Edit.</div>
-            <textarea id="intentionText" class="hidden" placeholder="Example: Move slowly, speak kindly, and protect my energy."></textarea>
+            <div class="journalText">
+              <span class="label">Intention</span>
+              <span class="value" id="intentionView"></span>
+            </div>
+
+            <div class="journalText">
+              <span class="label">Gratitude</span>
+              <span class="value" id="gratitudeView"></span>
+            </div>
 
             <div class="dots">
               <div class="dotLabel">End-of-day check-in:</div>
-              <div class="dotRow" id="dotRow"></div>
-              <div class="small">Tap 1–3 dots (3 = awesome day).</div>
+              <div class="dotRow" id="dotRow" aria-label="Intention completion rating"></div>
+              <div class="small">Tap 1–3 dots (3 = awesome day). Tap the same dot again to clear.</div>
             </div>
-          </div>
-
-          <!-- Gratitude -->
-          <div class="journalBox">
-            <div class="journalTop">
-              <div>
-                <div class="journalTitle">Gratitude</div>
-                <div class="small">A few quick lines — what are you thankful for today?</div>
-              </div>
-              <div class="journalActions">
-                <button class="miniBtn" id="btnEditGratitude">Edit</button>
-                <button class="miniBtn hidden" id="btnSaveGratitude">Save</button>
-                <button class="miniBtn hidden" id="btnCancelGratitude">Cancel</button>
-              </div>
-            </div>
-
-            <div id="gratitudeDisplay" class="displayBlock">No gratitude note yet — tap Edit.</div>
-            <textarea id="gratitudeText" class="hidden" placeholder="Example: Morning coffee, a kind text, fresh air, my family."></textarea>
           </div>
 
           <div class="grid" id="grid"></div>
+
+          <!-- Pillar descriptions toggle -->
+          <div class="descWrap">
+            <button class="miniBtn" id="btnToggleDesc">Pillar Descriptions</button>
+            <div class="descPanel" id="descPanel">
+              <div class="descItem">
+                <strong>1. Energy</strong>
+                <div>Find patterns to help you map your day according to your natural energy levels. You are not yourself when tired and hungry.</div>
+              </div>
+              <div class="descItem">
+                <strong>2. Mind</strong>
+                <div>Prioritize mental health and put positive psychology into action with daily intentions, brain dumps, and gratitude affirmations.</div>
+              </div>
+              <div class="descItem">
+                <strong>3. Movement</strong>
+                <div>Celebrate movement, from seated stretches to gentle walks and high-impact activities.</div>
+              </div>
+              <div class="descItem">
+                <strong>4. Nourishment</strong>
+                <div>Let go of rigid goals to make space for favorite recipes and food that makes your body and mind feel good.</div>
+              </div>
+              <div class="descItem">
+                <strong>5. Connection</strong>
+                <div>Foster kind, inspiring moments with the people and things that lift you up—experiences, culture, or in-person interactions.</div>
+              </div>
+              <div class="descItem">
+                <strong>6. Rest</strong>
+                <div>The antidote to “to-do.” Build screen-free downtime into your day and explore stillness, micro naps, and meditations.</div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div id="viewWeekly" class="view">
@@ -390,18 +452,33 @@
         <div class="historyList" id="historyList"></div>
       </div>
     </div>
+  </div>
 
-    <!-- Pillar Descriptions at Bottom -->
-    <div class="card" style="margin-top:14px;">
-      <p class="sectionTitle">Pillar Descriptions</p>
-      <ul class="descList">
-        <li><strong>Energy</strong> — <span>Find patterns to help you map your day according to your natural energy levels. You are not yourself when tired and hungry.</span></li>
-        <li><strong>Mind</strong> — <span>Prioritize mental health and put positive psychology into action with daily intentions, brain dumps, and gratitude affirmations.</span></li>
-        <li><strong>Movement</strong> — <span>Celebrate movement, from seated stretches to gentle walks and high-impact activities.</span></li>
-        <li><strong>Nourishment</strong> — <span>Let go of rigid goals to make space for favorite recipes and food that makes your body and mind feel good.</span></li>
-        <li><strong>Connection</strong> — <span>Foster kind, inspiring moments with the people and things that lift you up — experiences, culture, and in-person interactions.</span></li>
-        <li><strong>Rest</strong> — <span>The antidote to “to-do.” Build screen-free downtime into your day and explore stillness, micro naps, and meditations.</span></li>
-      </ul>
+  <!-- Modal -->
+  <div class="overlay" id="overlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="journalTitle">
+      <div class="modalTop">
+        <div>
+          <h2 id="journalTitle">Edit Daily Intention + Gratitude</h2>
+          <div class="hint" id="journalDateHint"></div>
+        </div>
+        <button class="miniBtn" id="btnCloseModal">Close</button>
+      </div>
+
+      <div class="field">
+        <label for="intentionInput">Intention</label>
+        <textarea id="intentionInput" placeholder="Example: Move slowly, speak kindly, and protect my energy."></textarea>
+      </div>
+
+      <div class="field">
+        <label for="gratitudeInput">Gratitude</label>
+        <textarea id="gratitudeInput" placeholder="Example: A quiet morning, warm coffee, and a helpful conversation."></textarea>
+      </div>
+
+      <div class="modalActions">
+        <button class="miniBtn" id="btnCancelModal">Cancel</button>
+        <button class="miniBtn primary" id="btnSaveModal">Save</button>
+      </div>
     </div>
   </div>
 
@@ -415,8 +492,7 @@
     "dailyFlow.pillars.v5",
     "daily-flow-final",
     "daily-flow-v7",
-    "daily-flow-v1",
-    "daily-flow-final"
+    "daily-flow-v1"
   ];
 
   // Elements
@@ -441,29 +517,33 @@
   const btnNextMonth = document.getElementById("btnNextMonth");
   const btnJumpToday = document.getElementById("btnJumpToday");
 
-  // Intention UI
-  const btnEditIntention = document.getElementById("btnEditIntention");
-  const btnSaveIntention = document.getElementById("btnSaveIntention");
-  const btnCancelIntention = document.getElementById("btnCancelIntention");
-  const intentionDisplay = document.getElementById("intentionDisplay");
-  const intentionText = document.getElementById("intentionText");
-  const dotRow = document.getElementById("dotRow");
-
-  // Gratitude UI
-  const btnEditGratitude = document.getElementById("btnEditGratitude");
-  const btnSaveGratitude = document.getElementById("btnSaveGratitude");
-  const btnCancelGratitude = document.getElementById("btnCancelGratitude");
-  const gratitudeDisplay = document.getElementById("gratitudeDisplay");
-  const gratitudeText = document.getElementById("gratitudeText");
-
   // Install
   const btnInstall = document.getElementById("btnInstall");
   let deferredInstallPrompt = null;
 
+  // Journal view
+  const intentionView = document.getElementById("intentionView");
+  const gratitudeView = document.getElementById("gratitudeView");
+  const dotRow = document.getElementById("dotRow");
+
+  // Journal modal
+  const overlay = document.getElementById("overlay");
+  const btnEditJournal = document.getElementById("btnEditJournal");
+  const btnCloseModal = document.getElementById("btnCloseModal");
+  const btnCancelModal = document.getElementById("btnCancelModal");
+  const btnSaveModal = document.getElementById("btnSaveModal");
+  const intentionInput = document.getElementById("intentionInput");
+  const gratitudeInput = document.getElementById("gratitudeInput");
+  const journalDateHint = document.getElementById("journalDateHint");
+
+  // Pillar descriptions
+  const btnToggleDesc = document.getElementById("btnToggleDesc");
+  const descPanel = document.getElementById("descPanel");
+
   let activeDateKey = isoLocalDate(new Date());
   let calCursor = new Date();
 
-  // helpers
+  // Helpers
   function pad(n){ return String(n).padStart(2,"0"); }
   function isoLocalDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
   function parseDateKey(key){ const [y,m,dd]=key.split("-").map(Number); return new Date(y, m-1, dd); }
@@ -501,9 +581,10 @@
     for(const p of PILLARS){
       if(!data[dateKey][p]) data[dateKey][p] = Array(6).fill(0);
     }
+    // journal fields
     if(typeof data[dateKey].intentionText !== "string") data[dateKey].intentionText = "";
-    if(typeof data[dateKey].intentionScore !== "number") data[dateKey].intentionScore = 0;
     if(typeof data[dateKey].gratitudeText !== "string") data[dateKey].gratitudeText = "";
+    if(typeof data[dateKey].intentionScore !== "number") data[dateKey].intentionScore = 0; // 0-3
     return data;
   }
 
@@ -572,53 +653,18 @@
     for(const s of SLOTS) targetEl.appendChild(cellDiv(s, "hdr"));
   }
 
-  // --- edit modes ---
-  function setEditMode(type, isEditing){
-    if(type === "intention"){
-      if(isEditing){
-        intentionDisplay.classList.add("hidden");
-        intentionText.classList.remove("hidden");
-        btnEditIntention.classList.add("hidden");
-        btnSaveIntention.classList.remove("hidden");
-        btnCancelIntention.classList.remove("hidden");
-        intentionText.focus();
-      }else{
-        intentionDisplay.classList.remove("hidden");
-        intentionText.classList.add("hidden");
-        btnEditIntention.classList.remove("hidden");
-        btnSaveIntention.classList.add("hidden");
-        btnCancelIntention.classList.add("hidden");
-      }
-    }
-    if(type === "gratitude"){
-      if(isEditing){
-        gratitudeDisplay.classList.add("hidden");
-        gratitudeText.classList.remove("hidden");
-        btnEditGratitude.classList.add("hidden");
-        btnSaveGratitude.classList.remove("hidden");
-        btnCancelGratitude.classList.remove("hidden");
-        gratitudeText.focus();
-      }else{
-        gratitudeDisplay.classList.remove("hidden");
-        gratitudeText.classList.add("hidden");
-        btnEditGratitude.classList.remove("hidden");
-        btnSaveGratitude.classList.add("hidden");
-        btnCancelGratitude.classList.add("hidden");
-      }
-    }
-  }
-
-  // --- Intention / Gratitude render ---
+  // Journal rendering (single display)
   function renderJournal(){
     const all = ensureDay(loadAll(), activeDateKey);
     const day = all[activeDateKey];
 
-    // Intention
     const it = (day.intentionText || "").trim();
-    intentionDisplay.textContent = it ? it : "No intention yet — tap Edit.";
-    intentionText.value = day.intentionText || "";
+    const gt = (day.gratitudeText || "").trim();
 
-    // Dots
+    intentionView.innerHTML = it ? it : `<span class="empty">No intention yet — tap Edit.</span>`;
+    gratitudeView.innerHTML = gt ? gt : `<span class="empty">No gratitude yet — tap Edit.</span>`;
+
+    // dots
     dotRow.innerHTML = "";
     const score = day.intentionScore || 0;
     for(let i=1;i<=3;i++){
@@ -627,7 +673,8 @@
       b.title = `Set score to ${i}`;
       b.addEventListener("click", () => {
         const latest = ensureDay(loadAll(), activeDateKey);
-        latest[activeDateKey].intentionScore = (latest[activeDateKey].intentionScore === i) ? 0 : i;
+        latest[activeDateKey].intentionScore =
+          (latest[activeDateKey].intentionScore === i) ? 0 : i; // tap again clears
         saveAll(latest);
         renderJournal();
         renderCalendar();
@@ -635,40 +682,39 @@
       });
       dotRow.appendChild(b);
     }
-
-    // Gratitude
-    const gt = (day.gratitudeText || "").trim();
-    gratitudeDisplay.textContent = gt ? gt : "No gratitude note yet — tap Edit.";
-    gratitudeText.value = day.gratitudeText || "";
   }
 
-  // Intention events
-  btnEditIntention.addEventListener("click", ()=> setEditMode("intention", true));
-  btnCancelIntention.addEventListener("click", ()=> { setEditMode("intention", false); renderJournal(); });
-  btnSaveIntention.addEventListener("click", ()=>{
+  // Modal controls
+  function openModal(){
+    const all = ensureDay(loadAll(), activeDateKey);
+    const day = all[activeDateKey];
+    journalDateHint.textContent = `Selected day: ${activeDateKey}`;
+    intentionInput.value = day.intentionText || "";
+    gratitudeInput.value = day.gratitudeText || "";
+    overlay.classList.add("show");
+    setTimeout(()=> intentionInput.focus(), 30);
+  }
+  function closeModal(){
+    overlay.classList.remove("show");
+  }
+
+  btnEditJournal.addEventListener("click", openModal);
+  btnCloseModal.addEventListener("click", closeModal);
+  btnCancelModal.addEventListener("click", closeModal);
+  overlay.addEventListener("click", (e)=>{ if(e.target === overlay) closeModal(); });
+
+  btnSaveModal.addEventListener("click", ()=>{
     const latest = ensureDay(loadAll(), activeDateKey);
-    latest[activeDateKey].intentionText = intentionText.value || "";
+    latest[activeDateKey].intentionText = intentionInput.value || "";
+    latest[activeDateKey].gratitudeText = gratitudeInput.value || "";
     saveAll(latest);
-    setEditMode("intention", false);
+    closeModal();
     renderJournal();
     renderCalendar();
     renderHistoryList();
   });
 
-  // Gratitude events
-  btnEditGratitude.addEventListener("click", ()=> setEditMode("gratitude", true));
-  btnCancelGratitude.addEventListener("click", ()=> { setEditMode("gratitude", false); renderJournal(); });
-  btnSaveGratitude.addEventListener("click", ()=>{
-    const latest = ensureDay(loadAll(), activeDateKey);
-    latest[activeDateKey].gratitudeText = gratitudeText.value || "";
-    saveAll(latest);
-    setEditMode("gratitude", false);
-    renderJournal();
-    renderCalendar();
-    renderHistoryList();
-  });
-
-  // --- Daily grid ---
+  // Daily grid
   function renderToday(){
     const all = ensureDay(loadAll(), activeDateKey);
     const today = all[activeDateKey];
@@ -699,7 +745,7 @@
     }
   }
 
-  // --- Weekly/Monthly ---
+  // Weekly/Monthly
   function lastNDaysKeys(anchorKey, n){
     const anchor = parseDateKey(anchorKey);
     const keys = [];
@@ -710,6 +756,7 @@
     }
     return keys;
   }
+
   function monthKeysFor(dateKey){
     const d = parseDateKey(dateKey);
     const y = d.getFullYear();
@@ -721,6 +768,7 @@
     }
     return { keys, daysInMonth, label: monthName(new Date(y, m, 1)) };
   }
+
   function computeCounts(keys){
     const all = loadAll();
     const counts = {};
@@ -736,6 +784,7 @@
     }
     return counts;
   }
+
   function renderHeatmap(targetEl, counts, denom){
     targetEl.innerHTML = "";
     addHeaderRows(targetEl);
@@ -754,12 +803,14 @@
       }
     }
   }
+
   function renderWeekly(){
     const keys = lastNDaysKeys(activeDateKey, 7);
     const counts = computeCounts(keys);
     renderHeatmap(elWeeklyGrid, counts, 7);
     elWeeklyLabel.textContent = `Week ending ${activeDateKey}`;
   }
+
   function renderMonthly(){
     const { keys, daysInMonth, label } = monthKeysFor(activeDateKey);
     const counts = computeCounts(keys);
@@ -767,7 +818,7 @@
     elMonthlyLabel.textContent = `${label}`;
   }
 
-  // --- History ---
+  // History
   function renderCalendar(){
     const all = loadAll();
     const cursor = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1);
@@ -829,23 +880,23 @@
     for(const k of keys.slice(0, 20)){
       const item = document.createElement("div");
       item.className = "historyItem";
-
       const count = countSelectionsInDay(all[k]);
-      const score = all[k].intentionScore || 0;
       const it = (all[k].intentionText || "").trim();
       const gt = (all[k].gratitudeText || "").trim();
+      const score = all[k].intentionScore || 0;
 
       const right = [];
       if(score) right.push(`${score}/3`);
       right.push(`${count} taps`);
 
-      const leftLines = [];
-      leftLines.push(`<strong>${k}</strong>`);
-      leftLines.push(`<div class="small">${it ? ("Intention: " + (it.length > 36 ? it.slice(0,36) + "…" : it)) : "No intention"}</div>`);
-      leftLines.push(`<div class="small">${gt ? ("Gratitude: " + (gt.length > 36 ? gt.slice(0,36) + "…" : gt)) : "No gratitude"}</div>`);
+      const preview = it || gt ? (it ? it : gt) : "No journal";
+      const clipped = preview.length > 36 ? preview.slice(0,36) + "…" : preview;
 
       item.innerHTML = `
-        <div>${leftLines.join("")}</div>
+        <div>
+          <strong>${k}</strong>
+          <div class="small">${clipped}</div>
+        </div>
         <div class="small">${right.join(" • ")}</div>
       `;
       item.addEventListener("click", ()=> setActiveDate(k));
@@ -862,20 +913,20 @@
     if(name === "viewWeekly") btnWeeklyView.classList.add("primary");
     if(name === "viewMonthly") btnMonthlyView.classList.add("primary");
   }
-
   btnTodayView.addEventListener("click", ()=> setView("viewToday"));
   btnWeeklyView.addEventListener("click", ()=> setView("viewWeekly"));
   btnMonthlyView.addEventListener("click", ()=> setView("viewMonthly"));
 
+  // Clear
   btnClear.addEventListener("click", ()=>{
     const all = loadAll();
     if(all[activeDateKey]) delete all[activeDateKey];
     saveAll(all);
-    setEditMode("intention", false);
-    setEditMode("gratitude", false);
+    closeModal();
     renderToday(); renderWeekly(); renderMonthly(); renderCalendar(); renderHistoryList();
   });
 
+  // Calendar nav
   btnPrevMonth.addEventListener("click", ()=>{
     calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1);
     renderCalendar();
@@ -888,6 +939,11 @@
     const t = new Date();
     calCursor = new Date(t.getFullYear(), t.getMonth(), 1);
     setActiveDate(isoLocalDate(t));
+  });
+
+  // Pillar descriptions toggle
+  btnToggleDesc.addEventListener("click", ()=>{
+    descPanel.classList.toggle("show");
   });
 
   // Install flow (Android)
@@ -904,7 +960,7 @@
     btnInstall.classList.add("hidden");
   });
 
-  // PWA SW
+  // Service worker
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try{
@@ -917,8 +973,6 @@
   migrateIfNeeded();
   elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
   calCursor = new Date();
-  setEditMode("intention", false);
-  setEditMode("gratitude", false);
   renderToday();
   renderWeekly();
   renderMonthly();
