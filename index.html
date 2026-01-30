@@ -138,36 +138,25 @@
     }
     .hmcell strong{color:var(--text)}
 
-    /* --------- Daily Intention --------- */
-    .intentionBox{
+    /* --------- Journal blocks --------- */
+    .journalBox{
       margin-top:10px;
       border:1px solid var(--line);
       border-radius:16px;
       background: rgba(255,255,255,.02);
       padding:12px;
     }
-    .intentionTop{
+    .journalTop{
       display:flex;
       align-items:flex-start;
       justify-content:space-between;
       gap:10px;
       flex-wrap:wrap;
     }
-    .intentionTitle{
-      font-weight:800;
-      margin:0;
-    }
-    .intentionActions{
-      display:flex;
-      gap:8px;
-      align-items:center;
-      flex-wrap:wrap;
-    }
-    .miniBtn{
-      padding:8px 10px;
-      font-size:13px;
-      border-radius:12px;
-    }
+    .journalTitle{font-weight:800;margin:0}
+    .journalActions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+    .miniBtn{padding:8px 10px;font-size:13px;border-radius:12px}
+
     textarea{
       width:100%;
       margin-top:10px;
@@ -182,7 +171,7 @@
       font-size:14px;
       line-height:1.35;
     }
-    .intentionDisplay{
+    .displayBlock{
       margin-top:10px;
       padding:12px;
       border-radius:14px;
@@ -212,6 +201,11 @@
       border-color: rgba(255,95,162,.9);
       box-shadow: 0 0 0 3px rgba(255,95,162,.14) inset;
     }
+
+    /* --------- Pillar descriptions --------- */
+    .descList{margin:10px 0 0 0; padding-left:18px; color:var(--text);}
+    .descList li{margin:8px 0}
+    .descList span{color:var(--muted)}
 
     /* --------- History --------- */
     .calTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -314,30 +308,46 @@
           <p class="sectionTitle">Daily Map</p>
           <p class="subtle">Tap where you feel strongest. Multiple selections are allowed.</p>
 
-          <!-- Daily Intention -->
-          <div class="intentionBox">
-            <div class="intentionTop">
+          <!-- Intention -->
+          <div class="journalBox">
+            <div class="journalTop">
               <div>
-                <div class="intentionTitle">Daily Intention</div>
+                <div class="journalTitle">Daily Intention</div>
                 <div class="small">A short sentence for how you want to show up today.</div>
               </div>
-              <div class="intentionActions">
+              <div class="journalActions">
                 <button class="miniBtn" id="btnEditIntention">Edit</button>
                 <button class="miniBtn hidden" id="btnSaveIntention">Save</button>
                 <button class="miniBtn hidden" id="btnCancelIntention">Cancel</button>
               </div>
             </div>
 
-            <div id="intentionDisplay" class="intentionDisplay">No intention yet — tap Edit.</div>
+            <div id="intentionDisplay" class="displayBlock">No intention yet — tap Edit.</div>
             <textarea id="intentionText" class="hidden" placeholder="Example: Move slowly, speak kindly, and protect my energy."></textarea>
 
             <div class="dots">
               <div class="dotLabel">End-of-day check-in:</div>
-              <div class="dotRow" id="dotRow" aria-label="Intention completion rating">
-                <!-- dots inserted via JS -->
-              </div>
-              <div class="small" id="dotHint">Tap 1–3 dots (3 = awesome day).</div>
+              <div class="dotRow" id="dotRow"></div>
+              <div class="small">Tap 1–3 dots (3 = awesome day).</div>
             </div>
+          </div>
+
+          <!-- Gratitude -->
+          <div class="journalBox">
+            <div class="journalTop">
+              <div>
+                <div class="journalTitle">Gratitude</div>
+                <div class="small">A few quick lines — what are you thankful for today?</div>
+              </div>
+              <div class="journalActions">
+                <button class="miniBtn" id="btnEditGratitude">Edit</button>
+                <button class="miniBtn hidden" id="btnSaveGratitude">Save</button>
+                <button class="miniBtn hidden" id="btnCancelGratitude">Cancel</button>
+              </div>
+            </div>
+
+            <div id="gratitudeDisplay" class="displayBlock">No gratitude note yet — tap Edit.</div>
+            <textarea id="gratitudeText" class="hidden" placeholder="Example: Morning coffee, a kind text, fresh air, my family."></textarea>
           </div>
 
           <div class="grid" id="grid"></div>
@@ -379,6 +389,19 @@
         <div class="calendar" id="calendar"></div>
         <div class="historyList" id="historyList"></div>
       </div>
+    </div>
+
+    <!-- Pillar Descriptions at Bottom -->
+    <div class="card" style="margin-top:14px;">
+      <p class="sectionTitle">Pillar Descriptions</p>
+      <ul class="descList">
+        <li><strong>Energy</strong> — <span>Find patterns to help you map your day according to your natural energy levels. You are not yourself when tired and hungry.</span></li>
+        <li><strong>Mind</strong> — <span>Prioritize mental health and put positive psychology into action with daily intentions, brain dumps, and gratitude affirmations.</span></li>
+        <li><strong>Movement</strong> — <span>Celebrate movement, from seated stretches to gentle walks and high-impact activities.</span></li>
+        <li><strong>Nourishment</strong> — <span>Let go of rigid goals to make space for favorite recipes and food that makes your body and mind feel good.</span></li>
+        <li><strong>Connection</strong> — <span>Foster kind, inspiring moments with the people and things that lift you up — experiences, culture, and in-person interactions.</span></li>
+        <li><strong>Rest</strong> — <span>The antidote to “to-do.” Build screen-free downtime into your day and explore stillness, micro naps, and meditations.</span></li>
+      </ul>
     </div>
   </div>
 
@@ -426,6 +449,13 @@
   const intentionText = document.getElementById("intentionText");
   const dotRow = document.getElementById("dotRow");
 
+  // Gratitude UI
+  const btnEditGratitude = document.getElementById("btnEditGratitude");
+  const btnSaveGratitude = document.getElementById("btnSaveGratitude");
+  const btnCancelGratitude = document.getElementById("btnCancelGratitude");
+  const gratitudeDisplay = document.getElementById("gratitudeDisplay");
+  const gratitudeText = document.getElementById("gratitudeText");
+
   // Install
   const btnInstall = document.getElementById("btnInstall");
   let deferredInstallPrompt = null;
@@ -433,7 +463,7 @@
   let activeDateKey = isoLocalDate(new Date());
   let calCursor = new Date();
 
-  // --- helpers ---
+  // helpers
   function pad(n){ return String(n).padStart(2,"0"); }
   function isoLocalDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
   function parseDateKey(key){ const [y,m,dd]=key.split("-").map(Number); return new Date(y, m-1, dd); }
@@ -471,16 +501,16 @@
     for(const p of PILLARS){
       if(!data[dateKey][p]) data[dateKey][p] = Array(6).fill(0);
     }
-    // Intention fields
     if(typeof data[dateKey].intentionText !== "string") data[dateKey].intentionText = "";
-    if(typeof data[dateKey].intentionScore !== "number") data[dateKey].intentionScore = 0; // 0-3
+    if(typeof data[dateKey].intentionScore !== "number") data[dateKey].intentionScore = 0;
+    if(typeof data[dateKey].gratitudeText !== "string") data[dateKey].gratitudeText = "";
     return data;
   }
 
   function dayHasAnySelection(dayObj){
     if(!dayObj) return false;
-    // consider intention as "data" too
     if((dayObj.intentionText || "").trim().length > 0) return true;
+    if((dayObj.gratitudeText || "").trim().length > 0) return true;
     if((dayObj.intentionScore || 0) > 0) return true;
 
     for(const p of PILLARS){
@@ -542,17 +572,53 @@
     for(const s of SLOTS) targetEl.appendChild(cellDiv(s, "hdr"));
   }
 
-  // --- Intention rendering ---
-  function renderIntention(){
+  // --- edit modes ---
+  function setEditMode(type, isEditing){
+    if(type === "intention"){
+      if(isEditing){
+        intentionDisplay.classList.add("hidden");
+        intentionText.classList.remove("hidden");
+        btnEditIntention.classList.add("hidden");
+        btnSaveIntention.classList.remove("hidden");
+        btnCancelIntention.classList.remove("hidden");
+        intentionText.focus();
+      }else{
+        intentionDisplay.classList.remove("hidden");
+        intentionText.classList.add("hidden");
+        btnEditIntention.classList.remove("hidden");
+        btnSaveIntention.classList.add("hidden");
+        btnCancelIntention.classList.add("hidden");
+      }
+    }
+    if(type === "gratitude"){
+      if(isEditing){
+        gratitudeDisplay.classList.add("hidden");
+        gratitudeText.classList.remove("hidden");
+        btnEditGratitude.classList.add("hidden");
+        btnSaveGratitude.classList.remove("hidden");
+        btnCancelGratitude.classList.remove("hidden");
+        gratitudeText.focus();
+      }else{
+        gratitudeDisplay.classList.remove("hidden");
+        gratitudeText.classList.add("hidden");
+        btnEditGratitude.classList.remove("hidden");
+        btnSaveGratitude.classList.add("hidden");
+        btnCancelGratitude.classList.add("hidden");
+      }
+    }
+  }
+
+  // --- Intention / Gratitude render ---
+  function renderJournal(){
     const all = ensureDay(loadAll(), activeDateKey);
     const day = all[activeDateKey];
 
-    // display text
-    const text = (day.intentionText || "").trim();
-    intentionDisplay.textContent = text ? text : "No intention yet — tap Edit.";
+    // Intention
+    const it = (day.intentionText || "").trim();
+    intentionDisplay.textContent = it ? it : "No intention yet — tap Edit.";
     intentionText.value = day.intentionText || "";
 
-    // dots
+    // Dots
     dotRow.innerHTML = "";
     const score = day.intentionScore || 0;
     for(let i=1;i<=3;i++){
@@ -561,45 +627,43 @@
       b.title = `Set score to ${i}`;
       b.addEventListener("click", () => {
         const latest = ensureDay(loadAll(), activeDateKey);
-        // tap same score to toggle off back to 0
         latest[activeDateKey].intentionScore = (latest[activeDateKey].intentionScore === i) ? 0 : i;
         saveAll(latest);
-        renderIntention();
+        renderJournal();
         renderCalendar();
         renderHistoryList();
       });
       dotRow.appendChild(b);
     }
+
+    // Gratitude
+    const gt = (day.gratitudeText || "").trim();
+    gratitudeDisplay.textContent = gt ? gt : "No gratitude note yet — tap Edit.";
+    gratitudeText.value = day.gratitudeText || "";
   }
 
-  function setIntentionEditMode(isEditing){
-    if(isEditing){
-      intentionDisplay.classList.add("hidden");
-      intentionText.classList.remove("hidden");
-      btnEditIntention.classList.add("hidden");
-      btnSaveIntention.classList.remove("hidden");
-      btnCancelIntention.classList.remove("hidden");
-      intentionText.focus();
-    }else{
-      intentionDisplay.classList.remove("hidden");
-      intentionText.classList.add("hidden");
-      btnEditIntention.classList.remove("hidden");
-      btnSaveIntention.classList.add("hidden");
-      btnCancelIntention.classList.add("hidden");
-    }
-  }
-
-  btnEditIntention.addEventListener("click", ()=> setIntentionEditMode(true));
-  btnCancelIntention.addEventListener("click", ()=>{
-    setIntentionEditMode(false);
-    renderIntention();
-  });
+  // Intention events
+  btnEditIntention.addEventListener("click", ()=> setEditMode("intention", true));
+  btnCancelIntention.addEventListener("click", ()=> { setEditMode("intention", false); renderJournal(); });
   btnSaveIntention.addEventListener("click", ()=>{
     const latest = ensureDay(loadAll(), activeDateKey);
     latest[activeDateKey].intentionText = intentionText.value || "";
     saveAll(latest);
-    setIntentionEditMode(false);
-    renderIntention();
+    setEditMode("intention", false);
+    renderJournal();
+    renderCalendar();
+    renderHistoryList();
+  });
+
+  // Gratitude events
+  btnEditGratitude.addEventListener("click", ()=> setEditMode("gratitude", true));
+  btnCancelGratitude.addEventListener("click", ()=> { setEditMode("gratitude", false); renderJournal(); });
+  btnSaveGratitude.addEventListener("click", ()=>{
+    const latest = ensureDay(loadAll(), activeDateKey);
+    latest[activeDateKey].gratitudeText = gratitudeText.value || "";
+    saveAll(latest);
+    setEditMode("gratitude", false);
+    renderJournal();
     renderCalendar();
     renderHistoryList();
   });
@@ -609,10 +673,8 @@
     const all = ensureDay(loadAll(), activeDateKey);
     const today = all[activeDateKey];
 
-    // intention
-    renderIntention();
+    renderJournal();
 
-    // grid
     elGrid.innerHTML = "";
     addHeaderRows(elGrid);
 
@@ -648,7 +710,6 @@
     }
     return keys;
   }
-
   function monthKeysFor(dateKey){
     const d = parseDateKey(dateKey);
     const y = d.getFullYear();
@@ -660,7 +721,6 @@
     }
     return { keys, daysInMonth, label: monthName(new Date(y, m, 1)) };
   }
-
   function computeCounts(keys){
     const all = loadAll();
     const counts = {};
@@ -676,7 +736,6 @@
     }
     return counts;
   }
-
   function renderHeatmap(targetEl, counts, denom){
     targetEl.innerHTML = "";
     addHeaderRows(targetEl);
@@ -695,14 +754,12 @@
       }
     }
   }
-
   function renderWeekly(){
     const keys = lastNDaysKeys(activeDateKey, 7);
     const counts = computeCounts(keys);
     renderHeatmap(elWeeklyGrid, counts, 7);
     elWeeklyLabel.textContent = `Week ending ${activeDateKey}`;
   }
-
   function renderMonthly(){
     const { keys, daysInMonth, label } = monthKeysFor(activeDateKey);
     const counts = computeCounts(keys);
@@ -772,19 +829,23 @@
     for(const k of keys.slice(0, 20)){
       const item = document.createElement("div");
       item.className = "historyItem";
+
       const count = countSelectionsInDay(all[k]);
-      const it = (all[k].intentionText || "").trim();
       const score = all[k].intentionScore || 0;
+      const it = (all[k].intentionText || "").trim();
+      const gt = (all[k].gratitudeText || "").trim();
 
       const right = [];
       if(score) right.push(`${score}/3`);
       right.push(`${count} taps`);
 
+      const leftLines = [];
+      leftLines.push(`<strong>${k}</strong>`);
+      leftLines.push(`<div class="small">${it ? ("Intention: " + (it.length > 36 ? it.slice(0,36) + "…" : it)) : "No intention"}</div>`);
+      leftLines.push(`<div class="small">${gt ? ("Gratitude: " + (gt.length > 36 ? gt.slice(0,36) + "…" : gt)) : "No gratitude"}</div>`);
+
       item.innerHTML = `
-        <div>
-          <strong>${k}</strong>
-          <div class="small">${it ? ("Intention: " + (it.length > 38 ? it.slice(0,38) + "…" : it)) : "No intention"}</div>
-        </div>
+        <div>${leftLines.join("")}</div>
         <div class="small">${right.join(" • ")}</div>
       `;
       item.addEventListener("click", ()=> setActiveDate(k));
@@ -810,7 +871,8 @@
     const all = loadAll();
     if(all[activeDateKey]) delete all[activeDateKey];
     saveAll(all);
-    setIntentionEditMode(false);
+    setEditMode("intention", false);
+    setEditMode("gratitude", false);
     renderToday(); renderWeekly(); renderMonthly(); renderCalendar(); renderHistoryList();
   });
 
@@ -855,7 +917,8 @@
   migrateIfNeeded();
   elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
   calCursor = new Date();
-  setIntentionEditMode(false);
+  setEditMode("intention", false);
+  setEditMode("gratitude", false);
   renderToday();
   renderWeekly();
   renderMonthly();
