@@ -15,13 +15,12 @@
       --muted:#93a4c7;
       --text:#e8eefc;
       --cell:#0f1729;
-      --pink:#ff5fa2;
       --pinkSoft: rgba(255,95,162,.22);
     }
     *{box-sizing:border-box}
     body{
       margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
       background:
         radial-gradient(1200px 600px at 20% 0%, rgba(255,95,162,.12), transparent 60%),
         radial-gradient(900px 500px at 100% 30%, rgba(43,108,255,.14), transparent 55%),
@@ -33,7 +32,7 @@
     h1{margin:0;font-size:22px}
     .date{color:var(--muted);font-size:14px;margin-top:4px}
 
-    /* One-line buttons on mobile (scrollable) */
+    /* One-line buttons (scroll on mobile) */
     .btnrow{
       display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
     }
@@ -43,6 +42,8 @@
       font-size:15px;font-weight:650;white-space:nowrap;cursor:pointer;
     }
     button:hover{border-color:rgba(255,255,255,.2)}
+    button.primary{border-color:rgba(255,255,255,.20)}
+    button.hidden{display:none}
 
     .layout{
       margin-top:14px;
@@ -59,12 +60,13 @@
     }
     .sectionTitle{font-weight:800;margin:0 0 8px}
     .subtle{color:var(--muted);font-size:13px;line-height:1.35}
+    .small{font-size:12px;color:var(--muted)}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
-    /* --------- Daily grid (structurally fixed) --------- */
+    /* --------- Grids (Daily / Weekly / Monthly) --------- */
     .grid{
       margin-top:12px;
       display:grid;
-      /* Pillar column fits the longest word (Nourishment), remaining 6 are even */
       grid-template-columns: max-content repeat(6, minmax(0, 1fr));
       gap:10px;
       align-items:center;
@@ -91,7 +93,6 @@
       font-size:11px;
       letter-spacing:.18em;
     }
-
     .pill{
       display:flex;align-items:center;
       padding:10px 14px;
@@ -120,6 +121,21 @@
       color: var(--text);
       box-shadow: inset 0 0 0 1px rgba(255,95,162,.25);
     }
+
+    /* Heatmap cells */
+    .hmcell{
+      border:1px solid var(--line);
+      border-radius:14px;
+      min-height:48px;
+      padding:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background: rgba(255,255,255,.02);
+      color:var(--muted);
+      white-space:nowrap;
+    }
+    .hmcell strong{color:var(--text)}
 
     /* --------- History --------- */
     .calTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
@@ -181,13 +197,16 @@
     }
     .historyItem:hover{border-color:rgba(255,255,255,.2)}
     .historyItem strong{color:var(--text)}
-    .small{font-size:12px}
     .calTitle{font-weight:800}
 
-    /* ---------- MOBILE ---------- */
+    /* Views */
+    .view{display:none}
+    .view.active{display:block}
+
+    /* Mobile */
     @media(max-width:980px){
       .layout{grid-template-columns:1fr}
-      .cell{min-height:34px;padding:6px}
+      .cell,.hmcell{min-height:34px;padding:6px}
       .pill{padding:8px 12px}
       .hdrBand{margin-top:-6px}
     }
@@ -200,18 +219,38 @@
         <h1>Daily Flow — 6 Pillars</h1>
         <div class="date" id="activeLabel"></div>
       </div>
+
       <div class="btnrow">
-        <button id="btnToday">Today</button>
+        <button id="btnTodayView" class="primary">Today</button>
+        <button id="btnWeeklyView">Weekly</button>
+        <button id="btnMonthlyView">Monthly</button>
         <button id="btnClear">Clear Day</button>
+        <button id="btnInstall" class="hidden">Install App</button>
       </div>
     </div>
 
     <div class="layout">
       <!-- LEFT -->
       <div class="card">
-        <p class="sectionTitle">Daily Map</p>
-        <p class="subtle">Tap where you feel strongest. Multiple selections are allowed.</p>
-        <div class="grid" id="grid"></div>
+        <div id="viewToday" class="view active">
+          <p class="sectionTitle">Daily Map</p>
+          <p class="subtle">Tap where you feel strongest. Multiple selections are allowed.</p>
+          <div class="grid" id="grid"></div>
+        </div>
+
+        <div id="viewWeekly" class="view">
+          <p class="sectionTitle">Weekly Heatmap</p>
+          <p class="subtle">Counts show how many of the last 7 days you selected each slot.</p>
+          <div class="grid" id="weeklyGrid"></div>
+          <p class="small" id="weeklyLabel"></p>
+        </div>
+
+        <div id="viewMonthly" class="view">
+          <p class="sectionTitle">Monthly Heatmap</p>
+          <p class="subtle">Counts show how many days in the month you selected each slot.</p>
+          <div class="grid" id="monthlyGrid"></div>
+          <p class="small" id="monthlyLabel"></p>
+        </div>
       </div>
 
       <!-- RIGHT -->
@@ -242,10 +281,7 @@
   const PILLARS = ["Energy","Mind","Movement","Nourishment","Connection","Rest"];
   const SLOTS = ["E-AM","M-AM","L-AM","E-PM","M-PM","L-PM"];
 
-  // ✅ Stable key going forward
   const STORE_KEY = "dailyFlow.pillars.main";
-
-  // ✅ Auto-migrate from older keys you may have used already
   const LEGACY_KEYS = [
     "dailyFlow.pillars.v6",
     "dailyFlow.pillars.v5",
@@ -257,17 +293,27 @@
 
   const elActiveLabel = document.getElementById("activeLabel");
   const elGrid = document.getElementById("grid");
+  const elWeeklyGrid = document.getElementById("weeklyGrid");
+  const elMonthlyGrid = document.getElementById("monthlyGrid");
+  const elWeeklyLabel = document.getElementById("weeklyLabel");
+  const elMonthlyLabel = document.getElementById("monthlyLabel");
 
   const elCalMonthLabel = document.getElementById("calMonthLabel");
   const elCalendar = document.getElementById("calendar");
   const elHistoryList = document.getElementById("historyList");
   const elDataBadge = document.getElementById("dataBadge");
 
-  const btnToday = document.getElementById("btnToday");
+  const btnTodayView = document.getElementById("btnTodayView");
+  const btnWeeklyView = document.getElementById("btnWeeklyView");
+  const btnMonthlyView = document.getElementById("btnMonthlyView");
   const btnClear = document.getElementById("btnClear");
+
   const btnPrevMonth = document.getElementById("btnPrevMonth");
   const btnNextMonth = document.getElementById("btnNextMonth");
   const btnJumpToday = document.getElementById("btnJumpToday");
+
+  const btnInstall = document.getElementById("btnInstall");
+  let deferredInstallPrompt = null;
 
   let activeDateKey = isoLocalDate(new Date());
   let calCursor = new Date();
@@ -281,7 +327,6 @@
     try { return JSON.parse(json); } catch(e){ return null; }
   }
 
-  // ✅ Migration: merge any legacy keys into STORE_KEY once
   function migrateIfNeeded(){
     const current = safeParse(localStorage.getItem(STORE_KEY) || "{}") || {};
     let changed = false;
@@ -292,7 +337,6 @@
       const legacy = safeParse(legacyRaw);
       if(!legacy || typeof legacy !== "object") continue;
 
-      // merge days; prefer current if conflict
       for(const dayKey of Object.keys(legacy)){
         if(!current[dayKey]) {
           current[dayKey] = legacy[dayKey];
@@ -300,16 +344,11 @@
         }
       }
     }
-
     if(changed) localStorage.setItem(STORE_KEY, JSON.stringify(current));
   }
 
-  function loadAll(){
-    return safeParse(localStorage.getItem(STORE_KEY) || "{}") || {};
-  }
-  function saveAll(data){
-    localStorage.setItem(STORE_KEY, JSON.stringify(data));
-  }
+  function loadAll(){ return safeParse(localStorage.getItem(STORE_KEY) || "{}") || {}; }
+  function saveAll(data){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
 
   function ensureDay(data, dateKey){
     if(!data[dateKey]) data[dateKey] = {};
@@ -342,6 +381,8 @@
     activeDateKey = dateKey;
     elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
     renderToday();
+    renderWeekly();
+    renderMonthly();
     renderCalendar();
     renderHistoryList();
   }
@@ -359,31 +400,34 @@
     return d;
   }
 
-  function renderToday(){
-    const all = ensureDay(loadAll(), activeDateKey);
-    const today = all[activeDateKey];
-
-    elGrid.innerHTML = "";
-
+  function addHeaderRows(targetEl){
     // Row 1: AM/PM bands
-    elGrid.appendChild(cellDiv("", "hdr left"));
+    targetEl.appendChild(cellDiv("", "hdr left"));
+
     const am = document.createElement("div");
     am.className = "hdr hdrBand";
     am.style.gridColumn = "2 / span 3";
     am.innerHTML = `<span>AM</span>`;
-    elGrid.appendChild(am);
+    targetEl.appendChild(am);
 
     const pm = document.createElement("div");
     pm.className = "hdr hdrBand";
     pm.style.gridColumn = "5 / span 3";
     pm.innerHTML = `<span>PM</span>`;
-    elGrid.appendChild(pm);
+    targetEl.appendChild(pm);
 
     // Row 2: slot headers
-    elGrid.appendChild(cellDiv("", "hdr"));
-    for(const s of SLOTS) elGrid.appendChild(cellDiv(s, "hdr"));
+    targetEl.appendChild(cellDiv("", "hdr"));
+    for(const s of SLOTS) targetEl.appendChild(cellDiv(s, "hdr"));
+  }
 
-    // Data rows
+  function renderToday(){
+    const all = ensureDay(loadAll(), activeDateKey);
+    const today = all[activeDateKey];
+
+    elGrid.innerHTML = "";
+    addHeaderRows(elGrid);
+
     for(const pillar of PILLARS){
       elGrid.appendChild(pillDiv(pillar));
       for(let i=0;i<6;i++){
@@ -395,12 +439,86 @@
           latest[activeDateKey][pillar][i] = latest[activeDateKey][pillar][i] ? 0 : 1;
           saveAll(latest);
           renderToday();
+          renderWeekly();
+          renderMonthly();
           renderCalendar();
           renderHistoryList();
         });
         elGrid.appendChild(c);
       }
     }
+  }
+
+  function lastNDaysKeys(anchorKey, n){
+    const anchor = parseDateKey(anchorKey);
+    const keys = [];
+    for(let k=0;k<n;k++){
+      const d = new Date(anchor);
+      d.setDate(anchor.getDate() - k);
+      keys.push(isoLocalDate(d));
+    }
+    return keys;
+  }
+
+  function monthKeysFor(dateKey){
+    const d = parseDateKey(dateKey);
+    const y = d.getFullYear();
+    const m = d.getMonth();
+    const daysInMonth = new Date(y, m+1, 0).getDate();
+    const keys = [];
+    for(let day=1; day<=daysInMonth; day++){
+      keys.push(isoLocalDate(new Date(y, m, day)));
+    }
+    return { keys, daysInMonth, label: monthName(new Date(y, m, 1)) };
+  }
+
+  function computeCounts(keys){
+    const all = loadAll();
+    const counts = {};
+    for(const p of PILLARS) counts[p] = Array(6).fill(0);
+
+    for(const key of keys){
+      const day = all[key];
+      if(!day) continue;
+      for(const p of PILLARS){
+        const arr = day[p] || Array(6).fill(0);
+        for(let i=0;i<6;i++) counts[p][i] += (arr[i] ? 1 : 0);
+      }
+    }
+    return counts;
+  }
+
+  function renderHeatmap(targetEl, counts, denom){
+    targetEl.innerHTML = "";
+    addHeaderRows(targetEl);
+
+    for(const p of PILLARS){
+      targetEl.appendChild(pillDiv(p));
+      for(let i=0;i<6;i++){
+        const val = counts[p][i];
+        const pct = denom ? (val/denom) : 0;
+        const cell = document.createElement("div");
+        cell.className = "hmcell";
+        cell.style.background = `rgba(255, 95, 162, ${0.04 + pct*0.34})`;
+        cell.style.borderColor = `rgba(255,255,255, ${0.08 + pct*0.25})`;
+        cell.innerHTML = `<strong>${val}</strong><span class="small">/${denom}</span>`;
+        targetEl.appendChild(cell);
+      }
+    }
+  }
+
+  function renderWeekly(){
+    const keys = lastNDaysKeys(activeDateKey, 7);
+    const counts = computeCounts(keys);
+    renderHeatmap(elWeeklyGrid, counts, 7);
+    elWeeklyLabel.textContent = `Week ending ${activeDateKey}`;
+  }
+
+  function renderMonthly(){
+    const { keys, daysInMonth, label } = monthKeysFor(activeDateKey);
+    const counts = computeCounts(keys);
+    renderHeatmap(elMonthlyGrid, counts, daysInMonth);
+    elMonthlyLabel.textContent = `${label}`;
   }
 
   function renderCalendar(){
@@ -413,7 +531,6 @@
     elDataBadge.className = "badge" + (savedKeys.length ? " on" : "");
 
     elCalendar.innerHTML = "";
-
     const dows = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
     for(const d of dows){
       const el = document.createElement("div");
@@ -466,54 +583,80 @@
       const item = document.createElement("div");
       item.className = "historyItem";
       const count = countSelectionsInDay(all[k]);
-      item.innerHTML = `<div><strong>${k}</strong><div class="small subtle">${count} selections</div></div><div class="small">Open →</div>`;
+      item.innerHTML = `<div><strong>${k}</strong><div class="small">${count} selections</div></div><div class="small">Open →</div>`;
       item.addEventListener("click", ()=> setActiveDate(k));
       elHistoryList.appendChild(item);
     }
   }
 
-  // Buttons
-  btnToday.addEventListener("click", ()=>{
-    setActiveDate(isoLocalDate(new Date()));
-  });
+  // Views
+  function setView(name){
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.getElementById(name).classList.add("active");
+
+    // simple button state
+    [btnTodayView, btnWeeklyView, btnMonthlyView].forEach(b => b.classList.remove("primary"));
+    if(name === "viewToday") btnTodayView.classList.add("primary");
+    if(name === "viewWeekly") btnWeeklyView.classList.add("primary");
+    if(name === "viewMonthly") btnMonthlyView.classList.add("primary");
+  }
+
+  btnTodayView.addEventListener("click", ()=> setView("viewToday"));
+  btnWeeklyView.addEventListener("click", ()=> setView("viewWeekly"));
+  btnMonthlyView.addEventListener("click", ()=> setView("viewMonthly"));
 
   btnClear.addEventListener("click", ()=>{
     const all = loadAll();
     if(all[activeDateKey]) delete all[activeDateKey];
     saveAll(all);
-    renderToday();
-    renderCalendar();
-    renderHistoryList();
+    renderToday(); renderWeekly(); renderMonthly(); renderCalendar(); renderHistoryList();
   });
 
   btnPrevMonth.addEventListener("click", ()=>{
     calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1);
     renderCalendar();
   });
-
   btnNextMonth.addEventListener("click", ()=>{
     calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 1);
     renderCalendar();
   });
-
   btnJumpToday.addEventListener("click", ()=>{
     const t = new Date();
     calCursor = new Date(t.getFullYear(), t.getMonth(), 1);
     setActiveDate(isoLocalDate(t));
   });
 
-  // PWA
+  // ✅ Install flow for Android (Samsung Chrome)
+  window.addEventListener("beforeinstallprompt", (e) => {
+    e.preventDefault();
+    deferredInstallPrompt = e;
+    btnInstall.classList.remove("hidden");
+  });
+
+  btnInstall.addEventListener("click", async () => {
+    if(!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    btnInstall.classList.add("hidden");
+  });
+
+  // PWA: register SW (important: must control the page)
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
-      try{ await navigator.serviceWorker.register("./service-worker.js"); } catch(e){}
+      try{
+        await navigator.serviceWorker.register("./service-worker.js", { scope: "./" });
+      }catch(e){}
     });
   }
 
   // INIT
-  migrateIfNeeded();                 // ✅ pulls your old data forward
+  migrateIfNeeded();
   elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
   calCursor = new Date();
   renderToday();
+  renderWeekly();
+  renderMonthly();
   renderCalendar();
   renderHistoryList();
 </script>
