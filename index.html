@@ -1,266 +1,521 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Daily Flow — 6 Pillars</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Daily Flow — 6 Pillars</title>
 
-<meta name="theme-color" content="#0b1220" />
-<link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0b1220" />
+  <link rel="manifest" href="manifest.json" />
 
-<style>
-:root{
-  --bg:#0b1220;
-  --line:rgba(255,255,255,.08);
-  --muted:#93a4c7;
-  --text:#e8eefc;
-  --cell:#0f1729;
-  --pink:#ff5fa2;
-  --pinkSoft: rgba(255,95,162,.22);
-}
-*{box-sizing:border-box}
+  <style>
+    :root{
+      --bg:#0b1220;
+      --line:rgba(255,255,255,.08);
+      --muted:#93a4c7;
+      --text:#e8eefc;
+      --cell:#0f1729;
+      --pink:#ff5fa2;
+      --pinkSoft: rgba(255,95,162,.22);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(255,95,162,.12), transparent 60%),
+        radial-gradient(900px 500px at 100% 30%, rgba(43,108,255,.14), transparent 55%),
+        var(--bg);
+      color:var(--text);
+    }
+    .wrap{max-width:1180px;margin:0 auto;padding:24px}
+    .topbar{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;}
+    h1{margin:0;font-size:22px}
+    .date{color:var(--muted);font-size:14px;margin-top:4px}
 
-body{
-  margin:0;
-  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
-  background:
-    radial-gradient(1200px 600px at 20% 0%, rgba(255,95,162,.12), transparent 60%),
-    radial-gradient(900px 500px at 100% 30%, rgba(43,108,255,.14), transparent 55%),
-    var(--bg);
-  color:var(--text);
-}
+    /* One-line buttons on mobile (scrollable) */
+    .btnrow{
+      display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    }
+    button{
+      background:transparent;border:1px solid var(--line);color:var(--text);
+      padding:12px 14px;border-radius:14px;
+      font-size:15px;font-weight:650;white-space:nowrap;cursor:pointer;
+    }
+    button:hover{border-color:rgba(255,255,255,.2)}
 
-.wrap{max-width:1180px;margin:0 auto;padding:24px}
+    .layout{
+      margin-top:14px;
+      display:grid;
+      grid-template-columns: 1.6fr 1fr;
+      gap:14px;
+    }
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--line);
+      border-radius:18px;
+      padding:16px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    }
+    .sectionTitle{font-weight:800;margin:0 0 8px}
+    .subtle{color:var(--muted);font-size:13px;line-height:1.35}
 
-/* ---------- TOP ---------- */
-.topbar{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
-h1{margin:0;font-size:22px}
-.date{color:var(--muted);font-size:14px;margin-top:4px}
+    /* --------- Daily grid (structurally fixed) --------- */
+    .grid{
+      margin-top:12px;
+      display:grid;
+      /* Pillar column fits the longest word (Nourishment), remaining 6 are even */
+      grid-template-columns: max-content repeat(6, minmax(0, 1fr));
+      gap:10px;
+      align-items:center;
+    }
+    .hdr{
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      text-align:center;
+      white-space:nowrap;
+      padding:6px 4px;
+    }
+    .hdr.left{padding:0}
+    .hdrBand{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: rgba(255,255,255,.02);
+    }
+    .hdrBand span{
+      display:block;
+      padding:6px 0;
+      font-weight:800;
+      font-size:11px;
+      letter-spacing:.18em;
+    }
 
-.btnrow{
-  display:flex;
-  gap:10px;
-  flex-wrap:nowrap;
-  overflow-x:auto;
-}
-button{
-  background:transparent;
-  border:1px solid var(--line);
-  color:var(--text);
-  padding:12px 14px;
-  border-radius:14px;
-  font-size:15px;
-  font-weight:650;
-  white-space:nowrap;
-  cursor:pointer;
-}
+    .pill{
+      display:flex;align-items:center;
+      padding:10px 14px;
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: rgba(255,255,255,.02);
+      font-weight:750;
+      white-space:nowrap;
+    }
+    .cell{
+      border:1px solid var(--line);
+      border-radius:14px;
+      background: var(--cell);
+      min-height:48px;
+      padding:8px;
+      cursor:pointer;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      user-select:none;
+    }
+    .cell.on{
+      background: var(--pinkSoft);
+      border-color: rgba(255,95,162,.55);
+      color: var(--text);
+      box-shadow: inset 0 0 0 1px rgba(255,95,162,.25);
+    }
 
-/* ---------- LAYOUT ---------- */
-.layout{
-  margin-top:14px;
-  display:grid;
-  grid-template-columns: 1.6fr 1fr;
-  gap:14px;
-}
+    /* --------- History --------- */
+    .calTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+    .calBtns{display:flex;gap:8px;flex-wrap:wrap}
+    .calendar{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap:8px;
+    }
+    .dow{
+      color:var(--muted);
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+      padding:6px 6px;
+      border-bottom:1px solid var(--line);
+      text-align:center;
+      white-space:nowrap;
+    }
+    .day{
+      border:1px solid var(--line);
+      border-radius:12px;
+      background: rgba(255,255,255,.02);
+      min-height:44px;
+      padding:8px 8px;
+      cursor:pointer;
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      color:var(--muted);
+    }
+    .day:hover{border-color:rgba(255,255,255,.2)}
+    .day.muted{opacity:.35; cursor:default}
+    .day.selected{
+      border-color: rgba(255,95,162,.6);
+      box-shadow: inset 0 0 0 1px rgba(255,95,162,.25);
+      color:var(--text);
+    }
+    .day.hasData{background: rgba(255,95,162,.10)}
+    .badge{
+      font-size:11px;
+      padding:2px 8px;
+      border-radius:999px;
+      border:1px solid var(--line);
+      color:var(--muted);
+    }
+    .badge.on{border-color:rgba(255,95,162,.5); color:var(--text); background: rgba(255,95,162,.14)}
+    .historyList{margin-top:10px; max-height:260px; overflow:auto}
+    .historyItem{
+      display:flex; justify-content:space-between; align-items:center;
+      padding:10px 10px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background: rgba(255,255,255,.02);
+      margin-top:8px;
+      cursor:pointer;
+      color:var(--muted);
+    }
+    .historyItem:hover{border-color:rgba(255,255,255,.2)}
+    .historyItem strong{color:var(--text)}
+    .small{font-size:12px}
+    .calTitle{font-weight:800}
 
-/* ---------- CARD ---------- */
-.card{
-  padding:16px;
-  border-radius:18px;
-  border:1px solid var(--line);
-  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-  box-shadow:0 10px 30px rgba(0,0,0,.25);
-}
-.sectionTitle{font-weight:800;margin:0 0 8px}
-.subtle{color:var(--muted);font-size:13px}
-
-/* ---------- GRID (FIXED STRUCTURE) ---------- */
-.grid{
-  margin-top:12px;
-  display:grid;
-  grid-template-columns: max-content repeat(6, 1fr);
-  grid-auto-rows: auto;
-  gap:10px;
-  align-items:center;
-}
-
-/* Headers */
-.hdr{
-  font-size:11px;
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:.12em;
-  text-align:center;
-  white-space:nowrap;
-}
-.hdr.left{padding:0}
-
-.hdrBand{
-  border:1px solid var(--line);
-  border-radius:14px;
-  background:rgba(255,255,255,.02);
-}
-.hdrBand span{
-  display:block;
-  padding:6px 0;
-  font-weight:800;
-}
-
-/* Pillars */
-.pill{
-  padding:10px 14px;
-  border-radius:14px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-  font-weight:700;
-  white-space:nowrap;
-}
-
-/* Cells */
-.cell{
-  min-height:48px;
-  padding:8px;
-  border-radius:14px;
-  border:1px solid var(--line);
-  background:var(--cell);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  color:var(--muted);
-}
-.cell.on{
-  background:var(--pinkSoft);
-  border-color:rgba(255,95,162,.55);
-  color:var(--text);
-}
-
-/* ---------- HISTORY ---------- */
-.calendar{
-  margin-top:10px;
-  display:grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap:8px;
-}
-.day{
-  padding:8px;
-  border-radius:12px;
-  border:1px solid var(--line);
-  background:rgba(255,255,255,.02);
-  text-align:center;
-  font-size:13px;
-}
-.day.hasData{background:rgba(255,95,162,.12)}
-
-/* ---------- MOBILE ---------- */
-@media(max-width:980px){
-  .layout{grid-template-columns:1fr}
-  .cell{min-height:34px;padding:6px}
-  .pill{padding:8px 12px}
-}
-</style>
+    /* ---------- MOBILE ---------- */
+    @media(max-width:980px){
+      .layout{grid-template-columns:1fr}
+      .cell{min-height:34px;padding:6px}
+      .pill{padding:8px 12px}
+      .hdrBand{margin-top:-6px}
+    }
+  </style>
 </head>
-
 <body>
-<div class="wrap">
-
-  <div class="topbar">
-    <div>
-      <h1>Daily Flow — 6 Pillars</h1>
-      <div class="date" id="activeLabel"></div>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <h1>Daily Flow — 6 Pillars</h1>
+        <div class="date" id="activeLabel"></div>
+      </div>
+      <div class="btnrow">
+        <button id="btnToday">Today</button>
+        <button id="btnClear">Clear Day</button>
+      </div>
     </div>
-    <div class="btnrow">
-      <button id="btnToday">Today</button>
-      <button id="btnWeekly">Weekly</button>
-      <button id="btnMonthly">Monthly</button>
-      <button id="btnClear">Clear Day</button>
+
+    <div class="layout">
+      <!-- LEFT -->
+      <div class="card">
+        <p class="sectionTitle">Daily Map</p>
+        <p class="subtle">Tap where you feel strongest. Multiple selections are allowed.</p>
+        <div class="grid" id="grid"></div>
+      </div>
+
+      <!-- RIGHT -->
+      <div class="card">
+        <div class="calTop">
+          <div>
+            <div class="calTitle" id="calMonthLabel"></div>
+            <div class="subtle">Tap a day to open/edit. Days with data are highlighted.</div>
+          </div>
+          <div class="calBtns">
+            <button id="btnPrevMonth">◀</button>
+            <button id="btnNextMonth">▶</button>
+            <button id="btnJumpToday">Jump to Today</button>
+          </div>
+        </div>
+
+        <div class="calTop" style="margin-top:10px;">
+          <div class="badge" id="dataBadge">0 days saved</div>
+        </div>
+
+        <div class="calendar" id="calendar"></div>
+        <div class="historyList" id="historyList"></div>
+      </div>
     </div>
   </div>
-
-  <div class="layout">
-
-    <!-- LEFT -->
-    <div class="card">
-      <p class="sectionTitle">Daily Map</p>
-      <p class="subtle">Tap where you feel strongest. Multiple selections allowed.</p>
-      <div class="grid" id="grid"></div>
-    </div>
-
-    <!-- RIGHT -->
-    <div class="card">
-      <p class="sectionTitle">History</p>
-      <div class="calendar" id="calendar"></div>
-    </div>
-
-  </div>
-
-</div>
 
 <script>
-const PILLARS=["Energy","Mind","Movement","Nourishment","Connection","Rest"];
-const SLOTS=["E-AM","M-AM","L-AM","E-PM","M-PM","L-PM"];
-const STORE_KEY="daily-flow-v7";
+  const PILLARS = ["Energy","Mind","Movement","Nourishment","Connection","Rest"];
+  const SLOTS = ["E-AM","M-AM","L-AM","E-PM","M-PM","L-PM"];
 
-const grid=document.getElementById("grid");
-const cal=document.getElementById("calendar");
-const label=document.getElementById("activeLabel");
-const todayKey=()=>new Date().toISOString().slice(0,10);
-let activeDay=todayKey();
-label.textContent="Selected day: "+activeDay;
+  // ✅ Stable key going forward
+  const STORE_KEY = "dailyFlow.pillars.main";
 
-function div(t,c){
-  const d=document.createElement("div");
-  d.textContent=t;
-  d.className=c;
-  return d;
-}
+  // ✅ Auto-migrate from older keys you may have used already
+  const LEGACY_KEYS = [
+    "dailyFlow.pillars.v6",
+    "dailyFlow.pillars.v5",
+    "daily-flow-final",
+    "daily-flow-v7",
+    "daily-flow-v1",
+    "daily-flow-final"
+  ];
 
-function renderGrid(){
-  const data=JSON.parse(localStorage.getItem(STORE_KEY)||"{}");
-  data[activeDay]??={};
-  PILLARS.forEach(p=>data[activeDay][p]??=Array(6).fill(0));
-  grid.innerHTML="";
+  const elActiveLabel = document.getElementById("activeLabel");
+  const elGrid = document.getElementById("grid");
 
-  // Row 1 — AM/PM bands
-  grid.append(div("", "hdr left"));
-  const am=div("", "hdr hdrBand"); am.style.gridColumn="2 / span 3"; am.innerHTML="<span>AM</span>";
-  const pm=div("", "hdr hdrBand"); pm.style.gridColumn="5 / span 3"; pm.innerHTML="<span>PM</span>";
-  grid.append(am); grid.append(pm);
+  const elCalMonthLabel = document.getElementById("calMonthLabel");
+  const elCalendar = document.getElementById("calendar");
+  const elHistoryList = document.getElementById("historyList");
+  const elDataBadge = document.getElementById("dataBadge");
 
-  // Row 2 — slot labels
-  grid.append(div("", "hdr"));
-  SLOTS.forEach(s=>grid.append(div(s,"hdr")));
+  const btnToday = document.getElementById("btnToday");
+  const btnClear = document.getElementById("btnClear");
+  const btnPrevMonth = document.getElementById("btnPrevMonth");
+  const btnNextMonth = document.getElementById("btnNextMonth");
+  const btnJumpToday = document.getElementById("btnJumpToday");
 
-  // Rows — data
-  PILLARS.forEach(p=>{
-    grid.append(div(p,"pill"));
-    data[activeDay][p].forEach((v,i)=>{
-      const c=div("", "cell"+(v?" on":""));
-      c.onclick=()=>{
-        data[activeDay][p][i]^=1;
-        localStorage.setItem(STORE_KEY,JSON.stringify(data));
-        renderGrid(); renderCalendar();
-      };
-      grid.append(c);
+  let activeDateKey = isoLocalDate(new Date());
+  let calCursor = new Date();
+
+  function pad(n){ return String(n).padStart(2,"0"); }
+  function isoLocalDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
+  function parseDateKey(key){ const [y,m,dd]=key.split("-").map(Number); return new Date(y, m-1, dd); }
+  function monthName(d){ return d.toLocaleString(undefined, {month:"long", year:"numeric"}); }
+
+  function safeParse(json){
+    try { return JSON.parse(json); } catch(e){ return null; }
+  }
+
+  // ✅ Migration: merge any legacy keys into STORE_KEY once
+  function migrateIfNeeded(){
+    const current = safeParse(localStorage.getItem(STORE_KEY) || "{}") || {};
+    let changed = false;
+
+    for(const k of LEGACY_KEYS){
+      const legacyRaw = localStorage.getItem(k);
+      if(!legacyRaw) continue;
+      const legacy = safeParse(legacyRaw);
+      if(!legacy || typeof legacy !== "object") continue;
+
+      // merge days; prefer current if conflict
+      for(const dayKey of Object.keys(legacy)){
+        if(!current[dayKey]) {
+          current[dayKey] = legacy[dayKey];
+          changed = true;
+        }
+      }
+    }
+
+    if(changed) localStorage.setItem(STORE_KEY, JSON.stringify(current));
+  }
+
+  function loadAll(){
+    return safeParse(localStorage.getItem(STORE_KEY) || "{}") || {};
+  }
+  function saveAll(data){
+    localStorage.setItem(STORE_KEY, JSON.stringify(data));
+  }
+
+  function ensureDay(data, dateKey){
+    if(!data[dateKey]) data[dateKey] = {};
+    for(const p of PILLARS){
+      if(!data[dateKey][p]) data[dateKey][p] = Array(6).fill(0);
+    }
+    return data;
+  }
+
+  function dayHasAnySelection(dayObj){
+    if(!dayObj) return false;
+    for(const p of PILLARS){
+      const arr = dayObj[p] || [];
+      if(arr.some(x => x === 1)) return true;
+    }
+    return false;
+  }
+
+  function countSelectionsInDay(dayObj){
+    if(!dayObj) return 0;
+    let c=0;
+    for(const p of PILLARS){
+      const arr = dayObj[p] || [];
+      for(const v of arr) c += (v ? 1 : 0);
+    }
+    return c;
+  }
+
+  function setActiveDate(dateKey){
+    activeDateKey = dateKey;
+    elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
+    renderToday();
+    renderCalendar();
+    renderHistoryList();
+  }
+
+  function cellDiv(text, cls){
+    const d = document.createElement("div");
+    d.className = cls;
+    d.textContent = text;
+    return d;
+  }
+  function pillDiv(text){
+    const d = document.createElement("div");
+    d.className = "pill";
+    d.textContent = text;
+    return d;
+  }
+
+  function renderToday(){
+    const all = ensureDay(loadAll(), activeDateKey);
+    const today = all[activeDateKey];
+
+    elGrid.innerHTML = "";
+
+    // Row 1: AM/PM bands
+    elGrid.appendChild(cellDiv("", "hdr left"));
+    const am = document.createElement("div");
+    am.className = "hdr hdrBand";
+    am.style.gridColumn = "2 / span 3";
+    am.innerHTML = `<span>AM</span>`;
+    elGrid.appendChild(am);
+
+    const pm = document.createElement("div");
+    pm.className = "hdr hdrBand";
+    pm.style.gridColumn = "5 / span 3";
+    pm.innerHTML = `<span>PM</span>`;
+    elGrid.appendChild(pm);
+
+    // Row 2: slot headers
+    elGrid.appendChild(cellDiv("", "hdr"));
+    for(const s of SLOTS) elGrid.appendChild(cellDiv(s, "hdr"));
+
+    // Data rows
+    for(const pillar of PILLARS){
+      elGrid.appendChild(pillDiv(pillar));
+      for(let i=0;i<6;i++){
+        const isOn = today[pillar][i] === 1;
+        const c = document.createElement("div");
+        c.className = "cell" + (isOn ? " on" : "");
+        c.addEventListener("click", () => {
+          const latest = ensureDay(loadAll(), activeDateKey);
+          latest[activeDateKey][pillar][i] = latest[activeDateKey][pillar][i] ? 0 : 1;
+          saveAll(latest);
+          renderToday();
+          renderCalendar();
+          renderHistoryList();
+        });
+        elGrid.appendChild(c);
+      }
+    }
+  }
+
+  function renderCalendar(){
+    const all = loadAll();
+    const cursor = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1);
+    elCalMonthLabel.textContent = monthName(cursor);
+
+    const savedKeys = Object.keys(all).filter(k => dayHasAnySelection(all[k]));
+    elDataBadge.textContent = `${savedKeys.length} days saved`;
+    elDataBadge.className = "badge" + (savedKeys.length ? " on" : "");
+
+    elCalendar.innerHTML = "";
+
+    const dows = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+    for(const d of dows){
+      const el = document.createElement("div");
+      el.className = "dow";
+      el.textContent = d;
+      elCalendar.appendChild(el);
+    }
+
+    const firstDow = cursor.getDay();
+    const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0).getDate();
+
+    for(let i=0;i<firstDow;i++){
+      const blank = document.createElement("div");
+      blank.className = "day muted";
+      elCalendar.appendChild(blank);
+    }
+
+    for(let day=1; day<=daysInMonth; day++){
+      const d = new Date(cursor.getFullYear(), cursor.getMonth(), day);
+      const key = isoLocalDate(d);
+      const hasData = dayHasAnySelection(all[key]);
+      const isSelected = (key === activeDateKey);
+
+      const el = document.createElement("div");
+      el.className = "day" + (hasData ? " hasData" : "") + (isSelected ? " selected" : "");
+      el.innerHTML = `<div>${day}</div><div class="small">${hasData ? "•" : ""}</div>`;
+      el.addEventListener("click", ()=> setActiveDate(key));
+      elCalendar.appendChild(el);
+    }
+  }
+
+  function renderHistoryList(){
+    const all = loadAll();
+    const keys = Object.keys(all)
+      .filter(k => dayHasAnySelection(all[k]))
+      .sort((a,b)=> b.localeCompare(a));
+
+    elHistoryList.innerHTML = `<div class="subtle" style="margin-top:10px;">Saved days (newest first)</div>`;
+
+    if(keys.length === 0){
+      const empty = document.createElement("div");
+      empty.className = "subtle";
+      empty.style.marginTop = "8px";
+      empty.textContent = "No saved days yet — start tapping boxes and they’ll show up here.";
+      elHistoryList.appendChild(empty);
+      return;
+    }
+
+    for(const k of keys.slice(0, 20)){
+      const item = document.createElement("div");
+      item.className = "historyItem";
+      const count = countSelectionsInDay(all[k]);
+      item.innerHTML = `<div><strong>${k}</strong><div class="small subtle">${count} selections</div></div><div class="small">Open →</div>`;
+      item.addEventListener("click", ()=> setActiveDate(k));
+      elHistoryList.appendChild(item);
+    }
+  }
+
+  // Buttons
+  btnToday.addEventListener("click", ()=>{
+    setActiveDate(isoLocalDate(new Date()));
+  });
+
+  btnClear.addEventListener("click", ()=>{
+    const all = loadAll();
+    if(all[activeDateKey]) delete all[activeDateKey];
+    saveAll(all);
+    renderToday();
+    renderCalendar();
+    renderHistoryList();
+  });
+
+  btnPrevMonth.addEventListener("click", ()=>{
+    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1);
+    renderCalendar();
+  });
+
+  btnNextMonth.addEventListener("click", ()=>{
+    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 1);
+    renderCalendar();
+  });
+
+  btnJumpToday.addEventListener("click", ()=>{
+    const t = new Date();
+    calCursor = new Date(t.getFullYear(), t.getMonth(), 1);
+    setActiveDate(isoLocalDate(t));
+  });
+
+  // PWA
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", async () => {
+      try{ await navigator.serviceWorker.register("./service-worker.js"); } catch(e){}
     });
-  });
-}
+  }
 
-function renderCalendar(){
-  const data=JSON.parse(localStorage.getItem(STORE_KEY)||"{}");
-  cal.innerHTML="";
-  Object.keys(data).sort().slice(-21).forEach(d=>{
-    const day=div(d.split("-")[2],"day"+(Object.values(data[d]).some(a=>a.some(x=>x))?" hasData":""));
-    cal.append(day);
-  });
-}
-
-if("serviceWorker"in navigator){
-  navigator.serviceWorker.register("./service-worker.js");
-}
-
-renderGrid();
-renderCalendar();
+  // INIT
+  migrateIfNeeded();                 // ✅ pulls your old data forward
+  elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
+  calCursor = new Date();
+  renderToday();
+  renderCalendar();
+  renderHistoryList();
 </script>
 </body>
 </html>
