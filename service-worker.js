@@ -1,5 +1,5 @@
 /* Daily Flow PWA service worker */
-const CACHE_NAME = "daily-flow-cache-v2";
+const CACHE_NAME = "daily-flow-cache-v3";
 const ASSETS = [
   "./",
   "./index.html",
