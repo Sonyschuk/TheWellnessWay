@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Daily Flow — 6 Pillars</title>
 
+  <!-- PWA -->
   <meta name="theme-color" content="#0b1220" />
   <link rel="manifest" href="manifest.json" />
 
@@ -17,900 +18,345 @@
       --cell:#0f1729;
       --pink:#ff5fa2;
       --pinkSoft: rgba(255,95,162,.22);
-      --good: rgba(86, 232, 170, .18);
-      --warn: rgba(255, 210, 110, .18);
-      --bad: rgba(255, 120, 120, .18);
+      --good: rgba(86,232,170,.18);
+      --warn: rgba(255,210,110,.18);
+      --bad: rgba(255,120,120,.18);
     }
+
     *{box-sizing:border-box}
+
     body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background: radial-gradient(1200px 600px at 20% 0%, rgba(255,95,162,.12), transparent 60%),
-                  radial-gradient(900px 500px at 100% 30%, rgba(43,108,255,.14), transparent 55%),
-                  var(--bg);
+      margin:0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 600px at 20% 0%, rgba(255,95,162,.12), transparent 60%),
+        radial-gradient(900px 500px at 100% 30%, rgba(43,108,255,.14), transparent 55%),
+        var(--bg);
       color:var(--text);
     }
-    .wrap{max-width:1180px; margin:0 auto; padding:24px}
-    .topbar{display:flex; gap:12px; align-items:flex-start; justify-content:space-between; flex-wrap:wrap;}
-    h1{margin:0; font-size:22px; letter-spacing:.2px}
-    .date{color:var(--muted); font-size:14px; margin-top:4px}
 
-    .btnrow{display:flex; gap:10px; flex-wrap:wrap}
+    .wrap{max-width:1180px;margin:0 auto;padding:24px}
+
+    /* ---------- TOP BAR ---------- */
+    .topbar{
+      display:flex;
+      gap:12px;
+      justify-content:space-between;
+      flex-wrap:wrap;
+    }
+
+    h1{margin:0;font-size:22px}
+    .date{color:var(--muted);font-size:14px;margin-top:4px}
+
+    .btnrow{
+      display:flex;
+      gap:10px;
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;
+    }
+
     button{
-      background:transparent; border:1px solid var(--line); color:var(--text);
+      background:transparent;
+      border:1px solid var(--line);
+      color:var(--text);
       padding:12px 14px;
-      border-radius:12px; cursor:pointer;
+      border-radius:14px;
       font-size:15px;
       font-weight:650;
-      letter-spacing:.2px;
+      white-space:nowrap;
+      cursor:pointer;
     }
     button:hover{border-color:rgba(255,255,255,.2)}
+
+    /* ---------- CARDS ---------- */
     .card{
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      border:1px solid var(--line);
-      border-radius:18px;
-      padding:16px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
       margin-top:14px;
+      padding:16px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      box-shadow:0 10px 30px rgba(0,0,0,.25);
     }
-    .sectionTitle{font-weight:800; margin:0 0 8px 0}
-    .subtle{color:var(--muted); font-size:13px; line-height:1.35}
+
+    .sectionTitle{font-weight:800;margin:0 0 8px 0}
+    .subtle{color:var(--muted);font-size:13px;line-height:1.35}
 
     .layout{
       margin-top:14px;
       display:grid;
-      grid-template-columns: 1.6fr 1fr;
+      grid-template-columns:1.6fr 1fr;
       gap:14px;
     }
 
-    /* Key fix: minmax(0, 1fr) to prevent uneven column sizing on mobile */
-    .grid{
+    /* ---------- GRID ---------- */
+    .grid,.weeklyGrid,.monthlyGrid{
       margin-top:12px;
       display:grid;
-      grid-template-columns: 170px repeat(6, minmax(0, 1fr));
-      gap:10px;
-      align-items:stretch;
-    }
-    .weeklyGrid, .monthlyGrid{
-      margin-top:10px;
-      display:grid;
-      grid-template-columns: 170px repeat(6, minmax(0, 1fr));
+      grid-template-columns:170px repeat(6, minmax(0,1fr));
       gap:10px;
     }
 
     .hdr{
-      color:var(--muted);
       font-size:12px;
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      padding:10px 8px;
-      border-bottom:1px solid var(--line);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-    }
-    .hdr.left{justify-content:flex-start;border-bottom:none;padding:0}
-    .hdrBand{
-      border:1px solid var(--line);
-      border-radius:14px;
-      background: rgba(255,255,255,.02);
-    }
-    .hdrBand.am{box-shadow: inset 0 0 0 1px rgba(255,95,162,.10)}
-    .hdrBand.pm{box-shadow: inset 0 0 0 1px rgba(255,255,255,.06)}
-    .hdrBand span{
-      display:inline-block;
-      padding:10px 0;
-      width:100%;
-      font-weight:800;
-      letter-spacing:.18em;
-      white-space:nowrap;
-    }
-
-    .pill{
-      display:flex; align-items:center;
-      padding:14px 12px;
-      border:1px solid var(--line);
-      border-radius:14px;
-      background: rgba(255,255,255,.02);
-      font-weight:750;
-    }
-    .cell{
-      border:1px solid var(--line);
-      border-radius:14px;
-      background: var(--cell);
-      min-height:54px;
-      padding:10px;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
       color:var(--muted);
-      user-select:none;
-      transition: transform .05s ease, background .15s ease, border-color .15s ease;
-    }
-    .cell:hover{border-color:rgba(255,255,255,.18)}
-    .cell:active{transform:scale(.99)}
-    .cell.on{
-      background: var(--pinkSoft);
-      border-color: rgba(255,95,162,.55);
-      color: var(--text);
-      box-shadow: inset 0 0 0 1px rgba(255,95,162,.25);
-    }
-    .legend{display:flex; gap:14px; align-items:center; color:var(--muted); font-size:13px; margin-top:10px; flex-wrap:wrap}
-    .dot{width:10px; height:10px; border-radius:999px; display:inline-block; border:1px solid var(--line); background:var(--cell)}
-    .dot.on{background:rgba(255,95,162,.35); border-color:rgba(255,95,162,.55)}
-    .small{font-size:12px}
-
-    .wkcell, .mkcell{
-      border:1px solid var(--line);
-      border-radius:14px;
-      padding:10px;
-      min-height:54px;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      color:var(--muted);
-      background: rgba(255,255,255,.02);
-      white-space:nowrap;
-    }
-    .wkcell strong, .mkcell strong{color:var(--text)}
-
-    .insights{margin-top:10px;display:grid;grid-template-columns:1fr;gap:10px}
-    .insightBox{border:1px solid var(--line);border-radius:14px;padding:12px;background: rgba(255,255,255,.02)}
-    ul.clean{margin:8px 0 0 18px; padding:0}
-    ul.clean li{margin:6px 0}
-
-    /* Calendar */
-    .calTop{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
-    .calTitle{font-weight:800}
-    .calBtns{display:flex; gap:8px; flex-wrap:wrap}
-    .calendar{
-      margin-top:10px;
-      display:grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap:8px;
-    }
-    .dow{
-      color:var(--muted);
-      font-size:12px;
       text-transform:uppercase;
       letter-spacing:.12em;
       padding:8px 6px;
-      border-bottom:1px solid var(--line);
+      text-align:center;
       white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
     }
-    .day{
+    .hdr.left{padding:0}
+
+    .hdrBand{
       border:1px solid var(--line);
-      border-radius:12px;
-      background: rgba(255,255,255,.02);
-      min-height:48px;
-      padding:8px 8px;
-      cursor:pointer;
+      border-radius:14px;
+      background:rgba(255,255,255,.02);
+    }
+    .hdrBand span{
+      display:block;
+      padding:6px 0;
+      font-weight:800;
+      font-size:11px;
+    }
+
+    .pill{
+      padding:10px 10px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
+      font-weight:700;
+    }
+
+    .cell,.wkcell,.mkcell{
+      min-height:54px;
+      padding:10px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      background:var(--cell);
       display:flex;
-      align-items:flex-start;
-      justify-content:space-between;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
       color:var(--muted);
     }
-    .day:hover{border-color:rgba(255,255,255,.2)}
-    .day.muted{opacity:.35; cursor:default}
-    .day.selected{
-      border-color: rgba(255,95,162,.6);
-      box-shadow: inset 0 0 0 1px rgba(255,95,162,.25);
+
+    .cell.on{
+      background:var(--pinkSoft);
+      border-color:rgba(255,95,162,.55);
       color:var(--text);
     }
-    .day.hasData{background: rgba(255,95,162,.10)}
-    .badge{
-      font-size:11px;
-      padding:2px 8px;
-      border-radius:999px;
-      border:1px solid var(--line);
-      color:var(--muted);
+
+    .wkcell strong,.mkcell strong{color:var(--text)}
+
+    /* ---------- CALENDAR ---------- */
+    .calendar{
+      margin-top:10px;
+      display:grid;
+      grid-template-columns:repeat(7,1fr);
+      gap:8px;
     }
-    .badge.on{border-color:rgba(255,95,162,.5); color:var(--text); background: rgba(255,95,162,.14)}
-    .historyList{margin-top:10px; max-height:260px; overflow:auto}
-    .historyItem{
-      display:flex; justify-content:space-between; align-items:center;
-      padding:10px 10px;
-      border:1px solid var(--line);
+    .day{
+      padding:8px;
       border-radius:12px;
-      background: rgba(255,255,255,.02);
-      margin-top:8px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.02);
       cursor:pointer;
       color:var(--muted);
     }
-    .historyItem:hover{border-color:rgba(255,255,255,.2)}
-    .historyItem strong{color:var(--text)}
+    .day.hasData{background:rgba(255,95,162,.10)}
+    .day.selected{
+      border-color:rgba(255,95,162,.6);
+      color:var(--text);
+    }
 
-    /* Import/Export panel */
-    .ioGrid{display:grid; grid-template-columns: 1fr; gap:10px; margin-top:10px}
+    /* ---------- IMPORT EXPORT ---------- */
     textarea{
       width:100%;
       min-height:140px;
-      background: rgba(15, 23, 41, .75);
-      border:1px solid rgba(255,255,255,.10);
+      background:rgba(15,23,41,.75);
+      border:1px solid rgba(255,255,255,.1);
       border-radius:14px;
-      color: var(--text);
+      color:var(--text);
       padding:12px;
-      resize: vertical;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-family:monospace;
       font-size:12px;
-      line-height:1.35;
     }
-    .rowBtns{display:flex; gap:10px; flex-wrap:wrap}
-    .hint{color:var(--muted); font-size:12px}
-    .pillbtn{border-color:rgba(255,255,255,.14)}
-    .pillbtn.good{background: var(--good)}
-    .pillbtn.warn{background: var(--warn)}
-    .pillbtn.bad{background: var(--bad)}
 
-    /* Toast */
+    /* ---------- TOAST ---------- */
     .toast{
-      position: fixed;
-      left: 50%;
-      bottom: 18px;
-      transform: translateX(-50%);
-      background: rgba(15, 23, 41, .92);
-      border:1px solid rgba(255,255,255,.10);
-      color: var(--text);
-      padding: 10px 12px;
-      border-radius: 14px;
-      box-shadow: 0 12px 36px rgba(0,0,0,.35);
+      position:fixed;
+      bottom:18px;
+      left:50%;
+      transform:translateX(-50%);
+      padding:10px 14px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.1);
+      background:rgba(15,23,41,.95);
       display:none;
-      gap:10px;
-      align-items:center;
-      max-width:min(520px, calc(100vw - 28px));
-      z-index: 9999;
+      font-size:13px;
     }
-    .toast .dot{
-      width:10px; height:10px; border-radius:999px;
-      background: rgba(255,95,162,.55);
-      border:1px solid rgba(255,95,162,.65);
-    }
-    .toast .msg{color:var(--text); font-size:13px}
-    .toast .sub{color:var(--muted); font-size:12px; margin-top:2px}
-    .toast .stack{display:flex; flex-direction:column}
 
-    details summary{cursor:pointer; font-weight:700}
-
-    /* MOBILE: ONLY tighten ROW HEIGHTS (do not change column widths) */
+    /* ---------- MOBILE FIXES ---------- */
     @media(max-width:980px){
-      .layout{grid-template-columns: 1fr}
+      .layout{grid-template-columns:1fr}
 
-      /* keep same columns as desktop (just slightly shorter label col from earlier version) */
-      .grid,.weeklyGrid,.monthlyGrid{grid-template-columns: 120px repeat(6, minmax(0, 1fr))}
-
-      /* tighter rows only */
-      .cell, .wkcell, .mkcell{
-        min-height: 36px;     /* was 54 */
-        padding: 4px;         /* was 10 */
-        border-radius: 12px;
-      }
-      .pill{
-        padding: 10px 6px;    /* smaller vertical padding */
-        border-radius: 12px;
+      /* KEEP COLUMNS SAME — ONLY ROW HEIGHT */
+      .cell,.wkcell,.mkcell{
+        min-height:36px;
+        padding:6px;
       }
 
-      /* keep button font comfortably large */
-      button{font-size:16px; padding:12px 14px;}
-      .hdr{font-size:11px;}
+      .pill{padding:8px}
+
+      .hdrBand{margin-top:-6px}
     }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div>
-        <h1>Daily Flow — 6 Pillars</h1>
-        <div class="date" id="activeLabel"></div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div>
+      <h1>Daily Flow — 6 Pillars</h1>
+      <div class="date" id="activeLabel"></div>
+    </div>
+    <div class="btnrow">
+      <button id="btnToday">Today</button>
+      <button id="btnWeekly">Weekly</button>
+      <button id="btnMonthly">Monthly</button>
+      <button id="btnClear">Clear Day</button>
+      <button id="btnIO">Import / Export</button>
+    </div>
+  </div>
+
+  <div class="layout">
+
+    <!-- LEFT -->
+    <div>
+
+      <div class="card" id="viewToday">
+        <p class="sectionTitle">Daily Map</p>
+        <p class="subtle">Tap where you feel strongest. Multiple selections allowed.</p>
+        <div class="grid" id="grid"></div>
       </div>
-      <div class="btnrow">
-        <button id="btnToday">Today</button>
-        <button id="btnWeekly">Weekly</button>
-        <button id="btnMonthly">Monthly</button>
-        <button id="btnClearActive">Clear Day</button>
-        <button id="btnOpenIO">Import / Export</button>
+
+      <div class="card" id="viewWeekly" style="display:none;">
+        <p class="sectionTitle">Weekly Heatmap</p>
+        <div class="weeklyGrid" id="weeklyGrid"></div>
       </div>
+
+      <div class="card" id="viewMonthly" style="display:none;">
+        <p class="sectionTitle">Monthly Heatmap</p>
+        <div class="monthlyGrid" id="monthlyGrid"></div>
+      </div>
+
+      <div class="card" id="ioCard" style="display:none;">
+        <p class="sectionTitle">Import / Export</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <button id="shareBtn">Share</button>
+          <button id="copyBtn">Copy</button>
+        </div>
+        <textarea id="ioText"></textarea>
+      </div>
+
     </div>
 
-    <div class="layout">
-      <!-- Left -->
-      <div>
-        <div class="card" id="viewToday">
-          <p class="sectionTitle">Daily Map</p>
-          <p class="subtle">Tap the boxes where you feel strongest in each pillar. Multiple selections are allowed.</p>
-          <div class="grid" id="grid"></div>
-          <div class="legend">
-            <span><span class="dot"></span> off</span>
-            <span><span class="dot on"></span> selected</span>
-            <span class="small">Slots: E-AM, M-AM, L-AM, E-PM, M-PM, L-PM</span>
-          </div>
-        </div>
-
-        <div class="card" id="viewWeekly" style="display:none;">
-          <p class="sectionTitle">Weekly Heatmap (last 7 days)</p>
-          <p class="subtle">Intensity is based on how many days that slot was selected (0–7).</p>
-          <div class="weeklyGrid" id="weeklyGrid"></div>
-          <div class="insights" id="weeklyInsights"></div>
-        </div>
-
-        <div class="card" id="viewMonthly" style="display:none;">
-          <p class="sectionTitle">Monthly Summary</p>
-          <p class="subtle" id="monthlyLabel">Intensity is based on how many days that slot was selected in the month.</p>
-          <div class="monthlyGrid" id="monthlyGrid"></div>
-          <div class="insights" id="monthlyInsights"></div>
-        </div>
-
-        <div class="card" id="ioCard" style="display:none;">
-          <p class="sectionTitle">Import / Export</p>
-          <p class="subtle">Best workflow: <strong>Share</strong> or <strong>Copy</strong> on one device → paste/import on another.</p>
-
-          <div class="rowBtns">
-            <button class="pillbtn good" id="btnShareAll">Share</button>
-            <button class="pillbtn good" id="btnCopyAll">Copy</button>
-            <button class="pillbtn" id="btnDownloadJson">Download JSON</button>
-            <button class="pillbtn" id="btnUploadFile">Import file</button>
-            <button class="pillbtn warn" id="btnImportPaste">Import paste</button>
-            <button class="pillbtn bad" id="btnCloseIO">Close</button>
-          </div>
-
-          <div class="ioGrid">
-            <textarea id="ioText" placeholder="Paste your data here (JSON)..."></textarea>
-            <div class="hint">Tip: if you saved a .txt, open it, copy all, paste here, then <strong>Import paste</strong>.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right -->
-      <div class="card">
-        <div class="calTop">
-          <div>
-            <div class="calTitle">History</div>
-            <div class="subtle">Click a day to view/edit. Days with data are highlighted.</div>
-          </div>
-          <div class="calBtns">
-            <button id="btnPrevMonth">◀</button>
-            <button id="btnNextMonth">▶</button>
-            <button id="btnJumpToday">Jump to Today</button>
-          </div>
-        </div>
-
-        <div class="calTop" style="margin-top:10px;">
-          <div class="calTitle" id="calMonthLabel"></div>
-          <div class="badge" id="dataBadge">0 days saved</div>
-        </div>
-
-        <div class="calendar" id="calendar"></div>
-        <div class="historyList" id="historyList"></div>
-      </div>
-    </div>
-
+    <!-- RIGHT -->
     <div class="card">
-      <details>
-        <summary>Pillar Descriptions</summary>
-        <div class="subtle" style="margin-top:10px;">
-          <ol style="margin:8px 0 0 18px; padding:0; line-height:1.35;">
-            <li style="margin:8px 0;"><strong>Energy</strong> — Find patterns to help you map your day according to your natural energy levels. You are not yourself when tired and hungry.</li>
-            <li style="margin:8px 0;"><strong>Mind</strong> — Prioritize mental health and put positive psychology into action with daily intentions, brain dumps, and gratitude affirmations.</li>
-            <li style="margin:8px 0;"><strong>Movement</strong> — Celebrate movement, from seated stretches to gentle walks and high-impact activities.</li>
-            <li style="margin:8px 0;"><strong>Nourishment</strong> — Let go of rigid goals to make space for favorite recipes and food that makes your body and mind feel good.</li>
-            <li style="margin:8px 0;"><strong>Connection</strong> — Foster kind, inspiring moments with the people and things that lift you up — experiences, culture, or in-person interactions.</li>
-            <li style="margin:8px 0;"><strong>Rest</strong> — The antidote to “to-do”. Build screen-free downtime into your day and explore stillness, micro naps, and meditations.</li>
-          </ol>
-        </div>
-      </details>
+      <p class="sectionTitle">History</p>
+      <div class="calendar" id="calendar"></div>
     </div>
+
   </div>
 
-  <div class="toast" id="toast" role="status" aria-live="polite">
-    <span class="dot"></span>
-    <div class="stack">
-      <div class="msg" id="toastMsg">Saved</div>
-      <div class="sub" id="toastSub"></div>
-    </div>
-  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
-  const PILLARS = ["Energy","Mind","Movement","Nourishment","Connection","Rest"];
-  const SLOTS = ["Early AM","Mid AM","Late AM","Early PM","Mid PM","Late PM"];
-  const STORE_KEY = "dailyFlow.pillars.v6";
-
-  const elActiveLabel = document.getElementById("activeLabel");
-
-  const viewToday = document.getElementById("viewToday");
-  const viewWeekly = document.getElementById("viewWeekly");
-  const viewMonthly = document.getElementById("viewMonthly");
-
-  const elGrid = document.getElementById("grid");
-  const elWeeklyGrid = document.getElementById("weeklyGrid");
-  const elMonthlyGrid = document.getElementById("monthlyGrid");
-
-  const elWeeklyInsights = document.getElementById("weeklyInsights");
-  const elMonthlyInsights = document.getElementById("monthlyInsights");
-  const elMonthlyLabel = document.getElementById("monthlyLabel");
-
-  const btnToday = document.getElementById("btnToday");
-  const btnWeekly = document.getElementById("btnWeekly");
-  const btnMonthly = document.getElementById("btnMonthly");
-  const btnClearActive = document.getElementById("btnClearActive");
-  const btnOpenIO = document.getElementById("btnOpenIO");
-
-  const ioCard = document.getElementById("ioCard");
-  const btnCloseIO = document.getElementById("btnCloseIO");
-  const btnShareAll = document.getElementById("btnShareAll");
-  const btnCopyAll = document.getElementById("btnCopyAll");
-  const btnDownloadJson = document.getElementById("btnDownloadJson");
-  const btnUploadFile = document.getElementById("btnUploadFile");
-  const btnImportPaste = document.getElementById("btnImportPaste");
-  const ioText = document.getElementById("ioText");
-
-  const btnPrevMonth = document.getElementById("btnPrevMonth");
-  const btnNextMonth = document.getElementById("btnNextMonth");
-  const btnJumpToday = document.getElementById("btnJumpToday");
-
-  const elCalMonthLabel = document.getElementById("calMonthLabel");
-  const elCalendar = document.getElementById("calendar");
-  const elHistoryList = document.getElementById("historyList");
-  const elDataBadge = document.getElementById("dataBadge");
-
-  // Toast
-  const elToast = document.getElementById("toast");
-  const elToastMsg = document.getElementById("toastMsg");
-  const elToastSub = document.getElementById("toastSub");
-  let toastTimer = null;
-
-  let activeDateKey = isoLocalDate(new Date());
-  let calCursor = new Date();
-
-  function pad(n){ return String(n).padStart(2,"0"); }
-  function isoLocalDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
-  function parseDateKey(key){ const [y,m,dd]=key.split("-").map(Number); return new Date(y, m-1, dd); }
-  function monthName(d){ return d.toLocaleString(undefined, {month:"long", year:"numeric"}); }
-
-  function toast(msg, sub=""){
-    if(toastTimer) clearTimeout(toastTimer);
-    elToastMsg.textContent = msg;
-    elToastSub.textContent = sub;
-    elToast.style.display = "flex";
-    toastTimer = setTimeout(()=>{ elToast.style.display = "none"; }, 1300);
-  }
-
-  function loadAll(){
-    try{ return JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }
-    catch(e){ return {}; }
-  }
-  function saveAll(data){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
-
-  function ensureDay(data, dateKey){
-    if(!data[dateKey]) data[dateKey] = {};
-    for(const p of PILLARS){
-      if(!data[dateKey][p]) data[dateKey][p] = Array(6).fill(0);
-    }
-    return data;
-  }
-
-  function dayHasAnySelection(dayObj){
-    if(!dayObj) return false;
-    for(const p of PILLARS){
-      const arr = dayObj[p] || [];
-      if(arr.some(x => x === 1)) return true;
-    }
-    return false;
-  }
-  function countSelectionsInDay(dayObj){
-    if(!dayObj) return 0;
-    let c=0;
-    for(const p of PILLARS){
-      const arr = dayObj[p] || [];
-      for(const v of arr) c += (v ? 1 : 0);
-    }
-    return c;
-  }
-
-  function setActiveDate(dateKey){
-    activeDateKey = dateKey;
-    elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
-    renderToday();
-    renderCalendar();
-    renderHistoryList();
-    if(viewWeekly.style.display !== "none") renderWeekly();
-    if(viewMonthly.style.display !== "none") renderMonthly();
-  }
-
-  function showView(which){
-    viewToday.style.display = (which==="today") ? "" : "none";
-    viewWeekly.style.display = (which==="weekly") ? "" : "none";
-    viewMonthly.style.display = (which==="monthly") ? "" : "none";
-  }
-
-  function cellDiv(text, cls){
-    const d = document.createElement("div");
-    d.className = cls;
-    d.textContent = text;
-    return d;
-  }
-  function pillDiv(text){
-    const d = document.createElement("div");
-    d.className = "pill";
-    d.textContent = text;
-    return d;
-  }
-
-  function renderToday(){
-    const all = ensureDay(loadAll(), activeDateKey);
-    const today = all[activeDateKey];
-
-    elGrid.innerHTML = "";
-
-    // Row 1: AM/PM band
-    elGrid.appendChild(cellDiv("", "hdr left"));
-
-    const am = document.createElement("div");
-    am.className = "hdr hdrBand am";
-    am.style.gridColumn = "2 / span 3";
-    am.innerHTML = `<span>AM</span>`;
-    elGrid.appendChild(am);
-
-    const pm = document.createElement("div");
-    pm.className = "hdr hdrBand pm";
-    pm.style.gridColumn = "5 / span 3";
-    pm.innerHTML = `<span>PM</span>`;
-    elGrid.appendChild(pm);
-
-    // Row 2: slot headers
-    elGrid.appendChild(cellDiv("", "hdr"));
-    for(const s of SLOTS) elGrid.appendChild(cellDiv(s, "hdr"));
-
-    for(const pillar of PILLARS){
-      elGrid.appendChild(pillDiv(pillar));
-      for(let i=0;i<6;i++){
-        const isOn = today[pillar][i] === 1;
-        const c = document.createElement("div");
-        c.className = "cell" + (isOn ? " on" : "");
-        c.title = `${pillar} — ${SLOTS[i]} (${activeDateKey})`;
-        c.addEventListener("click", () => {
-          const latest = ensureDay(loadAll(), activeDateKey);
-          latest[activeDateKey][pillar][i] = latest[activeDateKey][pillar][i] ? 0 : 1;
-          saveAll(latest);
-
-          renderToday();
-          renderCalendar();
-          renderHistoryList();
-          if(viewWeekly.style.display !== "none") renderWeekly();
-          if(viewMonthly.style.display !== "none") renderMonthly();
-
-          toast("Saved", `${pillar} • ${SLOTS[i]} • ${activeDateKey}`);
-        });
-        elGrid.appendChild(c);
-      }
-    }
-  }
-
-  function getLastNDaysKeys(anchorKey, n=7){
-    const anchor = parseDateKey(anchorKey);
-    const keys = [];
-    for(let k=0;k<n;k++){
-      const d = new Date(anchor);
-      d.setDate(anchor.getDate() - k);
-      keys.push(isoLocalDate(d));
-    }
-    return keys;
-  }
-
-  function computeCountsForKeys(keys){
-    const all = loadAll();
-    const counts = {};
-    for(const p of PILLARS) counts[p] = Array(6).fill(0);
-
-    for(const key of keys){
-      if(!all[key]) continue;
-      for(const p of PILLARS){
-        const arr = (all[key] && all[key][p]) ? all[key][p] : Array(6).fill(0);
-        for(let i=0;i<6;i++) counts[p][i] += (arr[i] ? 1 : 0);
-      }
-    }
-    return counts;
-  }
-
-  function renderHeatmap(targetGridEl, counts, denom, cellClass){
-    targetGridEl.innerHTML = "";
-    targetGridEl.appendChild(cellDiv("", "hdr"));
-    for(const s of SLOTS) targetGridEl.appendChild(cellDiv(s, "hdr"));
-
-    for(const p of PILLARS){
-      targetGridEl.appendChild(pillDiv(p));
-      for(let i=0;i<6;i++){
-        const val = counts[p][i];
-        const pct = denom ? (val / denom) : 0;
-        const c = document.createElement("div");
-        c.className = cellClass;
-        c.style.background = `rgba(255, 95, 162, ${0.04 + pct * 0.34})`;
-        c.style.borderColor = `rgba(255, 255, 255, ${0.08 + pct * 0.25})`;
-        c.innerHTML = `<strong>${val}</strong><span class="small">/${denom}</span>`;
-        targetGridEl.appendChild(c);
-      }
-    }
-  }
-
-  function renderInsights(targetEl, counts, label, denom){
-    const perPillar = [];
-    for(const p of PILLARS){
-      let bestI = 0;
-      for(let i=1;i<6;i++) if(counts[p][i] > counts[p][bestI]) bestI = i;
-      perPillar.push({pillar:p, slot:bestI, val:counts[p][bestI]});
-    }
-
-    const slotTotals = Array(6).fill(0);
-    for(const p of PILLARS){
-      for(let i=0;i<6;i++) slotTotals[i] += counts[p][i];
-    }
-    const topSlots = slotTotals.map((v,i)=>({i,v})).sort((a,b)=>b.v-a.v).slice(0,3);
-
-    const pillarTotals = PILLARS.map(p => ({ pillar:p, v: counts[p].reduce((a,b)=>a+b,0) }))
-                               .sort((a,b)=>b.v-a.v);
-
-    targetEl.innerHTML = "";
-
-    const box1 = document.createElement("div");
-    box1.className = "insightBox";
-    box1.innerHTML = `<div class="sectionTitle" style="margin:0;">Insights (${label})</div>
-                      <div class="subtle">Based on selections in this period.</div>`;
-
-    const box2 = document.createElement("div");
-    box2.className = "insightBox";
-    box2.innerHTML = `<div style="font-weight:800;">Top time slots (overall)</div>
-                      <ul class="clean subtle">${topSlots.map(s => `<li><strong>${SLOTS[s.i]}</strong> — ${s.v} total selections</li>`).join("")}</ul>`;
-
-    const box3 = document.createElement("div");
-    box3.className = "insightBox";
-    box3.innerHTML = `<div style="font-weight:800;">Peak slot per pillar</div>
-                      <ul class="clean subtle">${perPillar.map(x => `<li><strong>${x.pillar}</strong> — ${SLOTS[x.slot]} (${x.val}/${denom})</li>`).join("")}</ul>`;
-
-    const box4 = document.createElement("div");
-    box4.className = "insightBox";
-    box4.innerHTML = `<div style="font-weight:800;">Most consistent pillar</div>
-                      <div class="subtle"><strong>${pillarTotals[0].pillar}</strong> — ${pillarTotals[0].v} selections</div>`;
-
-    targetEl.appendChild(box1);
-    targetEl.appendChild(box2);
-    targetEl.appendChild(box3);
-    targetEl.appendChild(box4);
-  }
-
-  function renderWeekly(){
-    const keys = getLastNDaysKeys(activeDateKey, 7);
-    const counts = computeCountsForKeys(keys);
-    renderHeatmap(elWeeklyGrid, counts, 7, "wkcell");
-    renderInsights(elWeeklyInsights, counts, `ending ${activeDateKey}`, 7);
-  }
-
-  function getMonthKeysFor(dateKey){
-    const d = parseDateKey(dateKey);
-    const y = d.getFullYear();
-    const m = d.getMonth();
-    const daysInMonth = new Date(y, m+1, 0).getDate();
-    const keys = [];
-    for(let day=1; day<=daysInMonth; day++){
-      keys.push(isoLocalDate(new Date(y, m, day)));
-    }
-    return { keys, daysInMonth, label: monthName(new Date(y, m, 1)) };
-  }
-
-  function renderMonthly(){
-    const { keys, daysInMonth, label } = getMonthKeysFor(activeDateKey);
-    const counts = computeCountsForKeys(keys);
-    document.getElementById("monthlyLabel").textContent =
-      `Month: ${label} — intensity is based on how many days that slot was selected (0–${daysInMonth}).`;
-    renderHeatmap(elMonthlyGrid, counts, daysInMonth, "mkcell");
-    renderInsights(elMonthlyInsights, counts, label, daysInMonth);
-  }
-
-  function renderCalendar(){
-    const all = loadAll();
-    const cursor = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1);
-    elCalMonthLabel.textContent = monthName(cursor);
-
-    const savedKeys = Object.keys(all).filter(k => dayHasAnySelection(all[k]));
-    elDataBadge.textContent = `${savedKeys.length} days saved`;
-    elDataBadge.className = "badge" + (savedKeys.length ? " on" : "");
-
-    elCalendar.innerHTML = "";
-    const dows = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
-    for(const d of dows){
-      const el = document.createElement("div");
-      el.className = "dow";
-      el.textContent = d;
-      elCalendar.appendChild(el);
-    }
-
-    const firstDow = cursor.getDay();
-    const daysInMonth = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0).getDate();
-
-    for(let i=0;i<firstDow;i++){
-      const blank = document.createElement("div");
-      blank.className = "day muted";
-      elCalendar.appendChild(blank);
-    }
-
-    for(let day=1; day<=daysInMonth; day++){
-      const d = new Date(cursor.getFullYear(), cursor.getMonth(), day);
-      const key = isoLocalDate(d);
-      const hasData = dayHasAnySelection(all[key]);
-      const isSelected = (key === activeDateKey);
-
-      const el = document.createElement("div");
-      el.className = "day" + (hasData ? " hasData" : "") + (isSelected ? " selected" : "");
-      el.innerHTML = `<div>${day}</div><div class="small">${hasData ? "•" : ""}</div>`;
-      el.addEventListener("click", ()=> setActiveDate(key));
-      elCalendar.appendChild(el);
-    }
-  }
-
-  function renderHistoryList(){
-    const all = loadAll();
-    const keys = Object.keys(all).filter(k => dayHasAnySelection(all[k])).sort((a,b)=> b.localeCompare(a));
-    elHistoryList.innerHTML = `<div class="subtle" style="margin-top:10px;">Saved days (newest first)</div>`;
-    if(keys.length === 0){
-      const empty = document.createElement("div");
-      empty.className = "subtle";
-      empty.style.marginTop = "8px";
-      empty.textContent = "No saved days yet — start tapping boxes and they’ll show up here.";
-      elHistoryList.appendChild(empty);
-      return;
-    }
-    for(const k of keys.slice(0, 20)){
-      const item = document.createElement("div");
-      item.className = "historyItem";
-      const count = countSelectionsInDay(all[k]);
-      item.innerHTML = `<div><strong>${k}</strong><div class="small subtle">${count} selections</div></div><div class="small">Open →</div>`;
-      item.addEventListener("click", ()=> setActiveDate(k));
-      elHistoryList.appendChild(item);
-    }
-  }
-
-  function getAllData(){ return loadAll(); }
-  function downloadJson(data){
-    const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = "daily-flow-data.json";
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-  async function copyToClipboard(text){ await navigator.clipboard.writeText(text); }
-  function mergeAndSave(incoming){
-    const current = loadAll();
-    saveAll({...current, ...incoming});
-  }
-
-  async function shareData(){
-    const dataObj = getAllData();
-    const jsonPretty = JSON.stringify(dataObj, null, 2);
-    const jsonCompact = JSON.stringify(dataObj);
-
-    try{
-      if(navigator.share){
-        const blob = new Blob([jsonPretty], {type:"application/json"});
-        const file = new File([blob], "daily-flow-data.json", {type:"application/json"});
-        const canFiles = navigator.canShare && navigator.canShare({ files: [file] });
-
-        if(canFiles){
-          await navigator.share({ title:"Daily Flow Data", text:"Daily Flow export", files:[file] });
-          toast("Shared", "Sent daily-flow-data.json");
-          return;
-        }else{
-          await navigator.share({ title:"Daily Flow Data", text: jsonPretty });
-          toast("Shared", "Shared as text");
-          return;
-        }
-      }
-    }catch(e){ /* fall through */ }
-
-    try{
-      await copyToClipboard(jsonCompact);
-      toast("Copied", "Share not available — copied to clipboard");
-    }catch(e){
-      toast("Share failed", "Use Download JSON instead");
-    }
-  }
-
-  // Buttons
-  btnToday.addEventListener("click", ()=>{ showView("today"); toast("Today view", activeDateKey); });
-  btnWeekly.addEventListener("click", ()=>{ showView("weekly"); renderWeekly(); toast("Weekly view", `Ending ${activeDateKey}`); });
-  btnMonthly.addEventListener("click", ()=>{ showView("monthly"); renderMonthly(); toast("Monthly view", activeDateKey); });
-
-  btnClearActive.addEventListener("click", ()=>{
-    const all = loadAll();
-    if(all[activeDateKey]) delete all[activeDateKey];
-    saveAll(all);
-    renderToday(); renderCalendar(); renderHistoryList();
-    if(viewWeekly.style.display !== "none") renderWeekly();
-    if(viewMonthly.style.display !== "none") renderMonthly();
-    toast("Cleared", `Removed entries for ${activeDateKey}`);
-  });
-
-  btnOpenIO.addEventListener("click", ()=>{
-    ioCard.style.display = (ioCard.style.display === "none" ? "" : "none");
-    if(ioCard.style.display !== "none"){
-      ioText.value = JSON.stringify(getAllData(), null, 2);
-      toast("Import/Export", "Share, copy, or paste data");
-      ioCard.scrollIntoView({behavior:"smooth", block:"start"});
-    }
-  });
-  btnCloseIO.addEventListener("click", ()=>{ ioCard.style.display = "none"; toast("Closed", "Import/Export panel"); });
-
-  btnShareAll.addEventListener("click", shareData);
-
-  btnCopyAll.addEventListener("click", async ()=>{
-    try{ await copyToClipboard(JSON.stringify(getAllData())); toast("Copied", "All data copied to clipboard"); }
-    catch(e){ toast("Copy failed", "Use Download JSON instead"); }
-  });
-
-  btnDownloadJson.addEventListener("click", ()=>{ downloadJson(getAllData()); toast("Downloaded", "daily-flow-data.json"); });
-
-  btnUploadFile.addEventListener("click", ()=>{
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".json,.txt,application/json,text/plain";
-    input.onchange = async () => {
-      const file = input.files[0];
-      if(!file) return;
-      const text = await file.text();
-      ioText.value = text;
-      try{
-        mergeAndSave(JSON.parse(text));
-        renderToday(); renderCalendar(); renderHistoryList();
-        if(viewWeekly.style.display !== "none") renderWeekly();
-        if(viewMonthly.style.display !== "none") renderMonthly();
-        toast("Imported", "File imported & merged");
-      }catch(e){
-        toast("Import failed", "Not valid JSON — use paste import");
-      }
-    };
-    input.click();
-  });
-
-  btnImportPaste.addEventListener("click", ()=>{
-    const text = (ioText.value || "").trim();
-    if(!text){ toast("Nothing to import", "Paste data first"); return; }
-    try{
-      mergeAndSave(JSON.parse(text));
-      renderToday(); renderCalendar(); renderHistoryList();
-      if(viewWeekly.style.display !== "none") renderWeekly();
-      if(viewMonthly.style.display !== "none") renderMonthly();
-      toast("Imported", "Pasted data merged successfully");
-    }catch(e){
-      toast("Import failed", "That paste isn't valid JSON");
-    }
-  });
-
-  btnPrevMonth.addEventListener("click", ()=>{ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1); renderCalendar(); });
-  btnNextMonth.addEventListener("click", ()=>{ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 1); renderCalendar(); });
-  btnJumpToday.addEventListener("click", ()=>{
-    const t = new Date();
-    calCursor = new Date(t.getFullYear(), t.getMonth(), 1);
-    setActiveDate(isoLocalDate(t));
-    toast("Jumped to today", isoLocalDate(t));
-  });
-
-  // PWA
-  if ("serviceWorker" in navigator) {
-    window.addEventListener("load", async () => {
-      try{ await navigator.serviceWorker.register("./service-worker.js"); }catch(e){}
+/* ---------------- DATA ---------------- */
+const PILLARS=["Energy","Mind","Movement","Nourishment","Connection","Rest"];
+const SLOTS=["Early AM","Mid AM","Late AM","Early PM","Mid PM","Late PM"];
+const STORE_KEY="daily-flow-final";
+
+/* ---------------- HELPERS ---------------- */
+const $=id=>document.getElementById(id);
+const todayKey=()=>new Date().toISOString().slice(0,10);
+let activeDay=todayKey();
+
+/* ---------------- INIT ---------------- */
+$("activeLabel").textContent="Selected day: "+activeDay;
+
+/* ---------------- GRID ---------------- */
+function renderGrid(){
+  const data=JSON.parse(localStorage.getItem(STORE_KEY)||"{}");
+  data[activeDay]??={};
+  PILLARS.forEach(p=>data[activeDay][p]??=Array(6).fill(0));
+
+  const g=$("grid");
+  g.innerHTML="";
+
+  g.append(div("","hdr left"));
+  g.append(spanBand("AM",2,3));
+  g.append(spanBand("PM",5,3));
+
+  g.append(div("","hdr"));
+  SLOTS.forEach(s=>g.append(div(s,"hdr")));
+
+  PILLARS.forEach(p=>{
+    g.append(div(p,"pill"));
+    data[activeDay][p].forEach((v,i)=>{
+      const c=div("", "cell"+(v?" on":""));
+      c.onclick=()=>{
+        data[activeDay][p][i]^=1;
+        localStorage.setItem(STORE_KEY,JSON.stringify(data));
+        renderGrid();
+      };
+      g.append(c);
     });
-  }
+  });
+}
 
-  // Init
-  elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
-  calCursor = new Date();
-  renderToday();
-  renderCalendar();
-  renderHistoryList();
-  showView("today");
+/* ---------------- UI HELPERS ---------------- */
+function div(t,c){const d=document.createElement("div");d.textContent=t;d.className=c;return d;}
+function spanBand(t,start,span){
+  const d=div("", "hdr hdrBand");
+  d.style.gridColumn=`${start} / span ${span}`;
+  d.innerHTML=`<span>${t}</span>`;
+  return d;
+}
+
+/* ---------------- VIEW SWITCH ---------------- */
+$("btnToday").onclick=()=>show("viewToday");
+$("btnWeekly").onclick=()=>show("viewWeekly");
+$("btnMonthly").onclick=()=>show("viewMonthly");
+$("btnIO").onclick=()=>$("ioCard").style.display=$("ioCard").style.display?"":"none";
+
+function show(id){
+  ["viewToday","viewWeekly","viewMonthly"].forEach(v=>$(v).style.display="none");
+  $(id).style.display="";
+}
+
+/* ---------------- SHARE ---------------- */
+$("shareBtn").onclick=async()=>{
+  const data=JSON.stringify(localStorage.getItem(STORE_KEY));
+  if(navigator.share){
+    await navigator.share({text:data});
+  }else{
+    navigator.clipboard.writeText(data);
+  }
+};
+
+/* ---------------- SERVICE WORKER ---------------- */
+if("serviceWorker"in navigator){
+  navigator.serviceWorker.register("./service-worker.js");
+}
+
+/* ---------------- START ---------------- */
+renderGrid();
 </script>
+
 </body>
 </html>
