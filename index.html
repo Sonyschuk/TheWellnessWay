@@ -10,7 +10,6 @@
   <link rel="icon" href="icon-192.png">
   <link rel="apple-touch-icon" href="icon-192.png">
 
-
   <style>
     :root{
       --bg:#0b1220;
@@ -19,6 +18,7 @@
       --text:#e8eefc;
       --cell:#0f1729;
       --pinkSoft: rgba(255,95,162,.22);
+      --pink: rgba(255,95,162,.75);
     }
     *{box-sizing:border-box}
     body{
@@ -35,7 +35,6 @@
     h1{margin:0;font-size:22px}
     .date{color:var(--muted);font-size:14px;margin-top:4px}
 
-    /* One-line buttons (scroll on mobile) */
     .btnrow{
       display:flex;gap:10px;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
     }
@@ -64,9 +63,8 @@
     .sectionTitle{font-weight:800;margin:0 0 8px}
     .subtle{color:var(--muted);font-size:13px;line-height:1.35}
     .small{font-size:12px;color:var(--muted)}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
 
-    /* --------- Grids (Daily / Weekly / Monthly) --------- */
+    /* --------- Grids --------- */
     .grid{
       margin-top:12px;
       display:grid;
@@ -140,6 +138,81 @@
     }
     .hmcell strong{color:var(--text)}
 
+    /* --------- Daily Intention --------- */
+    .intentionBox{
+      margin-top:10px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background: rgba(255,255,255,.02);
+      padding:12px;
+    }
+    .intentionTop{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    .intentionTitle{
+      font-weight:800;
+      margin:0;
+    }
+    .intentionActions{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .miniBtn{
+      padding:8px 10px;
+      font-size:13px;
+      border-radius:12px;
+    }
+    textarea{
+      width:100%;
+      margin-top:10px;
+      min-height:92px;
+      background: rgba(15,23,41,.75);
+      border:1px solid rgba(255,255,255,.10);
+      border-radius:14px;
+      color: var(--text);
+      padding:12px;
+      resize: vertical;
+      font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+      font-size:14px;
+      line-height:1.35;
+    }
+    .intentionDisplay{
+      margin-top:10px;
+      padding:12px;
+      border-radius:14px;
+      background: rgba(15,23,41,.45);
+      border:1px solid rgba(255,255,255,.06);
+      color: var(--text);
+      white-space:pre-wrap;
+    }
+
+    .dots{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+    .dotLabel{color:var(--muted); font-size:12px}
+    .dotRow{display:flex; gap:8px; align-items:center}
+    .dotBtn{
+      width:18px;height:18px;border-radius:999px;
+      border:1px solid rgba(255,255,255,.18);
+      background: rgba(255,255,255,.03);
+      cursor:pointer;
+    }
+    .dotBtn.on{
+      background: var(--pink);
+      border-color: rgba(255,95,162,.9);
+      box-shadow: 0 0 0 3px rgba(255,95,162,.14) inset;
+    }
+
     /* --------- History --------- */
     .calTop{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
     .calBtns{display:flex;gap:8px;flex-wrap:wrap}
@@ -197,6 +270,7 @@
       margin-top:8px;
       cursor:pointer;
       color:var(--muted);
+      gap:10px;
     }
     .historyItem:hover{border-color:rgba(255,255,255,.2)}
     .historyItem strong{color:var(--text)}
@@ -215,6 +289,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <div class="topbar">
@@ -238,6 +313,33 @@
         <div id="viewToday" class="view active">
           <p class="sectionTitle">Daily Map</p>
           <p class="subtle">Tap where you feel strongest. Multiple selections are allowed.</p>
+
+          <!-- Daily Intention -->
+          <div class="intentionBox">
+            <div class="intentionTop">
+              <div>
+                <div class="intentionTitle">Daily Intention</div>
+                <div class="small">A short sentence for how you want to show up today.</div>
+              </div>
+              <div class="intentionActions">
+                <button class="miniBtn" id="btnEditIntention">Edit</button>
+                <button class="miniBtn hidden" id="btnSaveIntention">Save</button>
+                <button class="miniBtn hidden" id="btnCancelIntention">Cancel</button>
+              </div>
+            </div>
+
+            <div id="intentionDisplay" class="intentionDisplay">No intention yet — tap Edit.</div>
+            <textarea id="intentionText" class="hidden" placeholder="Example: Move slowly, speak kindly, and protect my energy."></textarea>
+
+            <div class="dots">
+              <div class="dotLabel">End-of-day check-in:</div>
+              <div class="dotRow" id="dotRow" aria-label="Intention completion rating">
+                <!-- dots inserted via JS -->
+              </div>
+              <div class="small" id="dotHint">Tap 1–3 dots (3 = awesome day).</div>
+            </div>
+          </div>
+
           <div class="grid" id="grid"></div>
         </div>
 
@@ -294,6 +396,7 @@
     "daily-flow-final"
   ];
 
+  // Elements
   const elActiveLabel = document.getElementById("activeLabel");
   const elGrid = document.getElementById("grid");
   const elWeeklyGrid = document.getElementById("weeklyGrid");
@@ -315,12 +418,22 @@
   const btnNextMonth = document.getElementById("btnNextMonth");
   const btnJumpToday = document.getElementById("btnJumpToday");
 
+  // Intention UI
+  const btnEditIntention = document.getElementById("btnEditIntention");
+  const btnSaveIntention = document.getElementById("btnSaveIntention");
+  const btnCancelIntention = document.getElementById("btnCancelIntention");
+  const intentionDisplay = document.getElementById("intentionDisplay");
+  const intentionText = document.getElementById("intentionText");
+  const dotRow = document.getElementById("dotRow");
+
+  // Install
   const btnInstall = document.getElementById("btnInstall");
   let deferredInstallPrompt = null;
 
   let activeDateKey = isoLocalDate(new Date());
   let calCursor = new Date();
 
+  // --- helpers ---
   function pad(n){ return String(n).padStart(2,"0"); }
   function isoLocalDate(d){ return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
   function parseDateKey(key){ const [y,m,dd]=key.split("-").map(Number); return new Date(y, m-1, dd); }
@@ -358,11 +471,18 @@
     for(const p of PILLARS){
       if(!data[dateKey][p]) data[dateKey][p] = Array(6).fill(0);
     }
+    // Intention fields
+    if(typeof data[dateKey].intentionText !== "string") data[dateKey].intentionText = "";
+    if(typeof data[dateKey].intentionScore !== "number") data[dateKey].intentionScore = 0; // 0-3
     return data;
   }
 
   function dayHasAnySelection(dayObj){
     if(!dayObj) return false;
+    // consider intention as "data" too
+    if((dayObj.intentionText || "").trim().length > 0) return true;
+    if((dayObj.intentionScore || 0) > 0) return true;
+
     for(const p of PILLARS){
       const arr = dayObj[p] || [];
       if(arr.some(x => x === 1)) return true;
@@ -404,7 +524,6 @@
   }
 
   function addHeaderRows(targetEl){
-    // Row 1: AM/PM bands
     targetEl.appendChild(cellDiv("", "hdr left"));
 
     const am = document.createElement("div");
@@ -419,15 +538,81 @@
     pm.innerHTML = `<span>PM</span>`;
     targetEl.appendChild(pm);
 
-    // Row 2: slot headers
     targetEl.appendChild(cellDiv("", "hdr"));
     for(const s of SLOTS) targetEl.appendChild(cellDiv(s, "hdr"));
   }
 
+  // --- Intention rendering ---
+  function renderIntention(){
+    const all = ensureDay(loadAll(), activeDateKey);
+    const day = all[activeDateKey];
+
+    // display text
+    const text = (day.intentionText || "").trim();
+    intentionDisplay.textContent = text ? text : "No intention yet — tap Edit.";
+    intentionText.value = day.intentionText || "";
+
+    // dots
+    dotRow.innerHTML = "";
+    const score = day.intentionScore || 0;
+    for(let i=1;i<=3;i++){
+      const b = document.createElement("div");
+      b.className = "dotBtn" + (i <= score ? " on" : "");
+      b.title = `Set score to ${i}`;
+      b.addEventListener("click", () => {
+        const latest = ensureDay(loadAll(), activeDateKey);
+        // tap same score to toggle off back to 0
+        latest[activeDateKey].intentionScore = (latest[activeDateKey].intentionScore === i) ? 0 : i;
+        saveAll(latest);
+        renderIntention();
+        renderCalendar();
+        renderHistoryList();
+      });
+      dotRow.appendChild(b);
+    }
+  }
+
+  function setIntentionEditMode(isEditing){
+    if(isEditing){
+      intentionDisplay.classList.add("hidden");
+      intentionText.classList.remove("hidden");
+      btnEditIntention.classList.add("hidden");
+      btnSaveIntention.classList.remove("hidden");
+      btnCancelIntention.classList.remove("hidden");
+      intentionText.focus();
+    }else{
+      intentionDisplay.classList.remove("hidden");
+      intentionText.classList.add("hidden");
+      btnEditIntention.classList.remove("hidden");
+      btnSaveIntention.classList.add("hidden");
+      btnCancelIntention.classList.add("hidden");
+    }
+  }
+
+  btnEditIntention.addEventListener("click", ()=> setIntentionEditMode(true));
+  btnCancelIntention.addEventListener("click", ()=>{
+    setIntentionEditMode(false);
+    renderIntention();
+  });
+  btnSaveIntention.addEventListener("click", ()=>{
+    const latest = ensureDay(loadAll(), activeDateKey);
+    latest[activeDateKey].intentionText = intentionText.value || "";
+    saveAll(latest);
+    setIntentionEditMode(false);
+    renderIntention();
+    renderCalendar();
+    renderHistoryList();
+  });
+
+  // --- Daily grid ---
   function renderToday(){
     const all = ensureDay(loadAll(), activeDateKey);
     const today = all[activeDateKey];
 
+    // intention
+    renderIntention();
+
+    // grid
     elGrid.innerHTML = "";
     addHeaderRows(elGrid);
 
@@ -452,6 +637,7 @@
     }
   }
 
+  // --- Weekly/Monthly ---
   function lastNDaysKeys(anchorKey, n){
     const anchor = parseDateKey(anchorKey);
     const keys = [];
@@ -524,6 +710,7 @@
     elMonthlyLabel.textContent = `${label}`;
   }
 
+  // --- History ---
   function renderCalendar(){
     const all = loadAll();
     const cursor = new Date(calCursor.getFullYear(), calCursor.getMonth(), 1);
@@ -586,7 +773,20 @@
       const item = document.createElement("div");
       item.className = "historyItem";
       const count = countSelectionsInDay(all[k]);
-      item.innerHTML = `<div><strong>${k}</strong><div class="small">${count} selections</div></div><div class="small">Open →</div>`;
+      const it = (all[k].intentionText || "").trim();
+      const score = all[k].intentionScore || 0;
+
+      const right = [];
+      if(score) right.push(`${score}/3`);
+      right.push(`${count} taps`);
+
+      item.innerHTML = `
+        <div>
+          <strong>${k}</strong>
+          <div class="small">${it ? ("Intention: " + (it.length > 38 ? it.slice(0,38) + "…" : it)) : "No intention"}</div>
+        </div>
+        <div class="small">${right.join(" • ")}</div>
+      `;
       item.addEventListener("click", ()=> setActiveDate(k));
       elHistoryList.appendChild(item);
     }
@@ -596,8 +796,6 @@
   function setView(name){
     document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
     document.getElementById(name).classList.add("active");
-
-    // simple button state
     [btnTodayView, btnWeeklyView, btnMonthlyView].forEach(b => b.classList.remove("primary"));
     if(name === "viewToday") btnTodayView.classList.add("primary");
     if(name === "viewWeekly") btnWeeklyView.classList.add("primary");
@@ -612,6 +810,7 @@
     const all = loadAll();
     if(all[activeDateKey]) delete all[activeDateKey];
     saveAll(all);
+    setIntentionEditMode(false);
     renderToday(); renderWeekly(); renderMonthly(); renderCalendar(); renderHistoryList();
   });
 
@@ -629,13 +828,12 @@
     setActiveDate(isoLocalDate(t));
   });
 
-  // ✅ Install flow for Android (Samsung Chrome)
+  // Install flow (Android)
   window.addEventListener("beforeinstallprompt", (e) => {
     e.preventDefault();
     deferredInstallPrompt = e;
     btnInstall.classList.remove("hidden");
   });
-
   btnInstall.addEventListener("click", async () => {
     if(!deferredInstallPrompt) return;
     deferredInstallPrompt.prompt();
@@ -644,7 +842,7 @@
     btnInstall.classList.add("hidden");
   });
 
-  // PWA: register SW (important: must control the page)
+  // PWA SW
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try{
@@ -657,6 +855,7 @@
   migrateIfNeeded();
   elActiveLabel.textContent = `Selected day: ${activeDateKey}`;
   calCursor = new Date();
+  setIntentionEditMode(false);
   renderToday();
   renderWeekly();
   renderMonthly();
