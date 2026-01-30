@@ -39,7 +39,7 @@
       background:transparent; border:1px solid var(--line); color:var(--text);
       padding:12px 14px;
       border-radius:12px; cursor:pointer;
-      font-size:15px; /* bigger buttons */
+      font-size:15px;
       font-weight:650;
       letter-spacing:.2px;
     }
@@ -88,7 +88,7 @@
       align-items:center;
       justify-content:center;
       text-align:center;
-      white-space:nowrap; /* prevent wrapping that causes odd sizing */
+      white-space:nowrap;
       overflow:hidden;
       text-overflow:ellipsis;
     }
@@ -277,43 +277,27 @@
 
     details summary{cursor:pointer; font-weight:700}
 
-    /* keep columns even + slightly narrower label column */
-  .grid,.weeklyGrid,.monthlyGrid{grid-template-columns: 108px repeat(6, minmax(0, 1fr))}
+    /* MOBILE: ONLY tighten ROW HEIGHTS (do not change column widths) */
+    @media(max-width:980px){
+      .layout{grid-template-columns: 1fr}
 
-  /* tighter row height */
-  .cell, .wkcell, .mkcell{
-    min-height: 40px;       /* was 54px */
-    padding: 6px;           /* was 10px */
-    border-radius: 12px;
-  }
+      /* keep same columns as desktop (just slightly shorter label col from earlier version) */
+      .grid,.weeklyGrid,.monthlyGrid{grid-template-columns: 120px repeat(6, minmax(0, 1fr))}
 
-  /* tighter pillar label row */
-  .pill{
-    padding: 8px 8px;       /* was 12px 10px */
-    border-radius: 12px;
-    font-size: 13px;
-  }
+      /* tighter rows only */
+      .cell, .wkcell, .mkcell{
+        min-height: 40px;     /* was 54 */
+        padding: 6px;         /* was 10 */
+        border-radius: 12px;
+      }
+      .pill{
+        padding: 10px 8px;    /* smaller vertical padding */
+        border-radius: 12px;
+      }
 
-  /* slightly smaller headers to reduce vertical space */
-  .hdr{
-    font-size: 10px;
-    padding: 6px 6px;       /* was 10px 8px */
-  }
-  .hdrBand span{
-    padding: 6px 0;         /* was 10px 0 */
-    font-size: 11px;
-  }
-
-  /* top buttons still readable but not chunky */
-  button{
-    font-size: 15px;
-    padding: 10px 12px;
-  }
-
-  /* reduce card padding a touch to fit everything */
-  .card{padding: 12px}
-  .legend{margin-top: 8px}
-}
+      /* keep button font comfortably large */
+      button{font-size:16px; padding:12px 14px;}
+      .hdr{font-size:11px;}
     }
   </style>
 </head>
@@ -334,7 +318,7 @@
     </div>
 
     <div class="layout">
-      <!-- Left: Daily / Weekly / Monthly -->
+      <!-- Left -->
       <div>
         <div class="card" id="viewToday">
           <p class="sectionTitle">Daily Map</p>
@@ -361,7 +345,6 @@
           <div class="insights" id="monthlyInsights"></div>
         </div>
 
-        <!-- Import / Export panel (collapsible) -->
         <div class="card" id="ioCard" style="display:none;">
           <p class="sectionTitle">Import / Export</p>
           <p class="subtle">Best workflow: <strong>Share</strong> or <strong>Copy</strong> on one device → paste/import on another.</p>
@@ -377,14 +360,12 @@
 
           <div class="ioGrid">
             <textarea id="ioText" placeholder="Paste your data here (JSON)..."></textarea>
-            <div class="hint">
-              Tip: if you accidentally saved a .txt, open it, copy all, paste here, then <strong>Import paste</strong>.
-            </div>
+            <div class="hint">Tip: if you saved a .txt, open it, copy all, paste here, then <strong>Import paste</strong>.</div>
           </div>
         </div>
       </div>
 
-      <!-- Right: History -->
+      <!-- Right -->
       <div class="card">
         <div class="calTop">
           <div>
@@ -408,7 +389,6 @@
       </div>
     </div>
 
-    <!-- Pillar Descriptions at bottom -->
     <div class="card">
       <details>
         <summary>Pillar Descriptions</summary>
@@ -426,7 +406,6 @@
     </div>
   </div>
 
-  <!-- Toast -->
   <div class="toast" id="toast" role="status" aria-live="polite">
     <span class="dot"></span>
     <div class="stack">
@@ -438,7 +417,7 @@
 <script>
   const PILLARS = ["Energy","Mind","Movement","Nourishment","Connection","Rest"];
   const SLOTS = ["Early AM","Mid AM","Late AM","Early PM","Mid PM","Late PM"];
-  const STORE_KEY = "dailyFlow.pillars.v5";
+  const STORE_KEY = "dailyFlow.pillars.v6";
 
   const elActiveLabel = document.getElementById("activeLabel");
 
@@ -548,14 +527,28 @@
     viewMonthly.style.display = (which==="monthly") ? "" : "none";
   }
 
+  function cellDiv(text, cls){
+    const d = document.createElement("div");
+    d.className = cls;
+    d.textContent = text;
+    return d;
+  }
+  function pillDiv(text){
+    const d = document.createElement("div");
+    d.className = "pill";
+    d.textContent = text;
+    return d;
+  }
+
   function renderToday(){
     const all = ensureDay(loadAll(), activeDateKey);
     const today = all[activeDateKey];
 
     elGrid.innerHTML = "";
 
-    // Row 1: AM/PM spanning headers
+    // Row 1: AM/PM band
     elGrid.appendChild(cellDiv("", "hdr left"));
+
     const am = document.createElement("div");
     am.className = "hdr hdrBand am";
     am.style.gridColumn = "2 / span 3";
@@ -572,7 +565,6 @@
     elGrid.appendChild(cellDiv("", "hdr"));
     for(const s of SLOTS) elGrid.appendChild(cellDiv(s, "hdr"));
 
-    // Rows
     for(const pillar of PILLARS){
       elGrid.appendChild(pillDiv(pillar));
       for(let i=0;i<6;i++){
@@ -624,7 +616,7 @@
     return counts;
   }
 
-  function renderHeatmap(targetGridEl, counts, denom){
+  function renderHeatmap(targetGridEl, counts, denom, cellClass){
     targetGridEl.innerHTML = "";
     targetGridEl.appendChild(cellDiv("", "hdr"));
     for(const s of SLOTS) targetGridEl.appendChild(cellDiv(s, "hdr"));
@@ -635,7 +627,7 @@
         const val = counts[p][i];
         const pct = denom ? (val / denom) : 0;
         const c = document.createElement("div");
-        c.className = (denom === 7 ? "wkcell" : "mkcell");
+        c.className = cellClass;
         c.style.background = `rgba(255, 95, 162, ${0.04 + pct * 0.34})`;
         c.style.borderColor = `rgba(255, 255, 255, ${0.08 + pct * 0.25})`;
         c.innerHTML = `<strong>${val}</strong><span class="small">/${denom}</span>`;
@@ -645,7 +637,6 @@
   }
 
   function renderInsights(targetEl, counts, label, denom){
-    // peak per pillar
     const perPillar = [];
     for(const p of PILLARS){
       let bestI = 0;
@@ -653,55 +644,36 @@
       perPillar.push({pillar:p, slot:bestI, val:counts[p][bestI]});
     }
 
-    // top overall slots
     const slotTotals = Array(6).fill(0);
     for(const p of PILLARS){
       for(let i=0;i<6;i++) slotTotals[i] += counts[p][i];
     }
-    const topSlots = slotTotals
-      .map((v,i)=>({i,v}))
-      .sort((a,b)=>b.v-a.v)
-      .slice(0,3);
+    const topSlots = slotTotals.map((v,i)=>({i,v})).sort((a,b)=>b.v-a.v).slice(0,3);
 
-    // most consistent pillar
-    const pillarTotals = PILLARS.map(p => ({
-      pillar:p,
-      v: counts[p].reduce((a,b)=>a+b,0)
-    })).sort((a,b)=>b.v-a.v);
+    const pillarTotals = PILLARS.map(p => ({ pillar:p, v: counts[p].reduce((a,b)=>a+b,0) }))
+                               .sort((a,b)=>b.v-a.v);
 
     targetEl.innerHTML = "";
 
     const box1 = document.createElement("div");
     box1.className = "insightBox";
-    box1.innerHTML = `
-      <div class="sectionTitle" style="margin:0;">Insights (${label})</div>
-      <div class="subtle">Based on selections in this period.</div>
-    `;
+    box1.innerHTML = `<div class="sectionTitle" style="margin:0;">Insights (${label})</div>
+                      <div class="subtle">Based on selections in this period.</div>`;
 
     const box2 = document.createElement("div");
     box2.className = "insightBox";
-    box2.innerHTML = `
-      <div style="font-weight:800;">Top time slots (overall)</div>
-      <ul class="clean subtle">
-        ${topSlots.map(s => `<li><strong>${SLOTS[s.i]}</strong> — ${s.v} total selections</li>`).join("")}
-      </ul>
-    `;
+    box2.innerHTML = `<div style="font-weight:800;">Top time slots (overall)</div>
+                      <ul class="clean subtle">${topSlots.map(s => `<li><strong>${SLOTS[s.i]}</strong> — ${s.v} total selections</li>`).join("")}</ul>`;
 
     const box3 = document.createElement("div");
     box3.className = "insightBox";
-    box3.innerHTML = `
-      <div style="font-weight:800;">Peak slot per pillar</div>
-      <ul class="clean subtle">
-        ${perPillar.map(x => `<li><strong>${x.pillar}</strong> — ${SLOTS[x.slot]} (${x.val}/${denom})</li>`).join("")}
-      </ul>
-    `;
+    box3.innerHTML = `<div style="font-weight:800;">Peak slot per pillar</div>
+                      <ul class="clean subtle">${perPillar.map(x => `<li><strong>${x.pillar}</strong> — ${SLOTS[x.slot]} (${x.val}/${denom})</li>`).join("")}</ul>`;
 
     const box4 = document.createElement("div");
     box4.className = "insightBox";
-    box4.innerHTML = `
-      <div style="font-weight:800;">Most consistent pillar</div>
-      <div class="subtle"><strong>${pillarTotals[0].pillar}</strong> — ${pillarTotals[0].v} selections</div>
-    `;
+    box4.innerHTML = `<div style="font-weight:800;">Most consistent pillar</div>
+                      <div class="subtle"><strong>${pillarTotals[0].pillar}</strong> — ${pillarTotals[0].v} selections</div>`;
 
     targetEl.appendChild(box1);
     targetEl.appendChild(box2);
@@ -712,14 +684,14 @@
   function renderWeekly(){
     const keys = getLastNDaysKeys(activeDateKey, 7);
     const counts = computeCountsForKeys(keys);
-    renderHeatmap(elWeeklyGrid, counts, 7);
+    renderHeatmap(elWeeklyGrid, counts, 7, "wkcell");
     renderInsights(elWeeklyInsights, counts, `ending ${activeDateKey}`, 7);
   }
 
   function getMonthKeysFor(dateKey){
     const d = parseDateKey(dateKey);
     const y = d.getFullYear();
-    const m = d.getMonth(); // 0-based
+    const m = d.getMonth();
     const daysInMonth = new Date(y, m+1, 0).getDate();
     const keys = [];
     for(let day=1; day<=daysInMonth; day++){
@@ -731,8 +703,9 @@
   function renderMonthly(){
     const { keys, daysInMonth, label } = getMonthKeysFor(activeDateKey);
     const counts = computeCountsForKeys(keys);
-    elMonthlyLabel.textContent = `Month: ${label} — intensity is based on how many days that slot was selected (0–${daysInMonth}).`;
-    renderHeatmap(elMonthlyGrid, counts, daysInMonth);
+    document.getElementById("monthlyLabel").textContent =
+      `Month: ${label} — intensity is based on how many days that slot was selected (0–${daysInMonth}).`;
+    renderHeatmap(elMonthlyGrid, counts, daysInMonth, "mkcell");
     renderInsights(elMonthlyInsights, counts, label, daysInMonth);
   }
 
@@ -779,12 +752,8 @@
 
   function renderHistoryList(){
     const all = loadAll();
-    const keys = Object.keys(all)
-      .filter(k => dayHasAnySelection(all[k]))
-      .sort((a,b)=> b.localeCompare(a));
-
+    const keys = Object.keys(all).filter(k => dayHasAnySelection(all[k])).sort((a,b)=> b.localeCompare(a));
     elHistoryList.innerHTML = `<div class="subtle" style="margin-top:10px;">Saved days (newest first)</div>`;
-
     if(keys.length === 0){
       const empty = document.createElement("div");
       empty.className = "subtle";
@@ -793,9 +762,7 @@
       elHistoryList.appendChild(empty);
       return;
     }
-
-    const show = keys.slice(0, 20);
-    for(const k of show){
+    for(const k of keys.slice(0, 20)){
       const item = document.createElement("div");
       item.className = "historyItem";
       const count = countSelectionsInDay(all[k]);
@@ -805,20 +772,6 @@
     }
   }
 
-  function cellDiv(text, cls){
-    const d = document.createElement("div");
-    d.className = cls;
-    d.textContent = text;
-    return d;
-  }
-  function pillDiv(text){
-    const d = document.createElement("div");
-    d.className = "pill";
-    d.textContent = text;
-    return d;
-  }
-
-  // Import/Export helpers
   function getAllData(){ return loadAll(); }
   function downloadJson(data){
     const blob = new Blob([JSON.stringify(data, null, 2)], {type:"application/json"});
@@ -828,13 +781,10 @@
     a.click();
     URL.revokeObjectURL(a.href);
   }
-  async function copyToClipboard(text){
-    await navigator.clipboard.writeText(text);
-  }
+  async function copyToClipboard(text){ await navigator.clipboard.writeText(text); }
   function mergeAndSave(incoming){
     const current = loadAll();
-    const merged = {...current, ...incoming}; // incoming wins per day key
-    saveAll(merged);
+    saveAll({...current, ...incoming});
   }
 
   async function shareData(){
@@ -842,36 +792,24 @@
     const jsonPretty = JSON.stringify(dataObj, null, 2);
     const jsonCompact = JSON.stringify(dataObj);
 
-    // Web Share API (mobile). Files sharing works on many modern browsers.
     try{
       if(navigator.share){
         const blob = new Blob([jsonPretty], {type:"application/json"});
         const file = new File([blob], "daily-flow-data.json", {type:"application/json"});
-        // Some browsers support files, some only text.
         const canFiles = navigator.canShare && navigator.canShare({ files: [file] });
 
         if(canFiles){
-          await navigator.share({
-            title: "Daily Flow Data",
-            text: "Daily Flow export",
-            files: [file]
-          });
+          await navigator.share({ title:"Daily Flow Data", text:"Daily Flow export", files:[file] });
           toast("Shared", "Sent daily-flow-data.json");
           return;
         }else{
-          await navigator.share({
-            title: "Daily Flow Data",
-            text: jsonPretty
-          });
+          await navigator.share({ title:"Daily Flow Data", text: jsonPretty });
           toast("Shared", "Shared as text");
           return;
         }
       }
-    }catch(e){
-      // fall through to copy
-    }
+    }catch(e){ /* fall through */ }
 
-    // Fallback: copy
     try{
       await copyToClipboard(jsonCompact);
       toast("Copied", "Share not available — copied to clipboard");
@@ -880,23 +818,10 @@
     }
   }
 
-  // View buttons
-  btnToday.addEventListener("click", ()=>{
-    showView("today");
-    toast("Today view", activeDateKey);
-  });
-
-  btnWeekly.addEventListener("click", ()=>{
-    showView("weekly");
-    renderWeekly();
-    toast("Weekly view", `Ending ${activeDateKey}`);
-  });
-
-  btnMonthly.addEventListener("click", ()=>{
-    showView("monthly");
-    renderMonthly();
-    toast("Monthly view", activeDateKey);
-  });
+  // Buttons
+  btnToday.addEventListener("click", ()=>{ showView("today"); toast("Today view", activeDateKey); });
+  btnWeekly.addEventListener("click", ()=>{ showView("weekly"); renderWeekly(); toast("Weekly view", `Ending ${activeDateKey}`); });
+  btnMonthly.addEventListener("click", ()=>{ showView("monthly"); renderMonthly(); toast("Monthly view", activeDateKey); });
 
   btnClearActive.addEventListener("click", ()=>{
     const all = loadAll();
@@ -908,7 +833,6 @@
     toast("Cleared", `Removed entries for ${activeDateKey}`);
   });
 
-  // Import/Export panel
   btnOpenIO.addEventListener("click", ()=>{
     ioCard.style.display = (ioCard.style.display === "none" ? "" : "none");
     if(ioCard.style.display !== "none"){
@@ -917,27 +841,16 @@
       ioCard.scrollIntoView({behavior:"smooth", block:"start"});
     }
   });
-  btnCloseIO.addEventListener("click", ()=>{
-    ioCard.style.display = "none";
-    toast("Closed", "Import/Export panel");
-  });
+  btnCloseIO.addEventListener("click", ()=>{ ioCard.style.display = "none"; toast("Closed", "Import/Export panel"); });
 
   btnShareAll.addEventListener("click", shareData);
 
   btnCopyAll.addEventListener("click", async ()=>{
-    try{
-      const text = JSON.stringify(getAllData());
-      await copyToClipboard(text);
-      toast("Copied", "All data copied to clipboard");
-    }catch(e){
-      toast("Copy failed", "Use Download JSON instead");
-    }
+    try{ await copyToClipboard(JSON.stringify(getAllData())); toast("Copied", "All data copied to clipboard"); }
+    catch(e){ toast("Copy failed", "Use Download JSON instead"); }
   });
 
-  btnDownloadJson.addEventListener("click", ()=>{
-    downloadJson(getAllData());
-    toast("Downloaded", "daily-flow-data.json");
-  });
+  btnDownloadJson.addEventListener("click", ()=>{ downloadJson(getAllData()); toast("Downloaded", "daily-flow-data.json"); });
 
   btnUploadFile.addEventListener("click", ()=>{
     const input = document.createElement("input");
@@ -949,14 +862,13 @@
       const text = await file.text();
       ioText.value = text;
       try{
-        const incoming = JSON.parse(text);
-        mergeAndSave(incoming);
+        mergeAndSave(JSON.parse(text));
         renderToday(); renderCalendar(); renderHistoryList();
         if(viewWeekly.style.display !== "none") renderWeekly();
         if(viewMonthly.style.display !== "none") renderMonthly();
         toast("Imported", "File imported & merged");
       }catch(e){
-        toast("Import failed", "File content isn't valid JSON — use paste import");
+        toast("Import failed", "Not valid JSON — use paste import");
       }
     };
     input.click();
@@ -966,8 +878,7 @@
     const text = (ioText.value || "").trim();
     if(!text){ toast("Nothing to import", "Paste data first"); return; }
     try{
-      const incoming = JSON.parse(text);
-      mergeAndSave(incoming);
+      mergeAndSave(JSON.parse(text));
       renderToday(); renderCalendar(); renderHistoryList();
       if(viewWeekly.style.display !== "none") renderWeekly();
       if(viewMonthly.style.display !== "none") renderMonthly();
@@ -977,15 +888,8 @@
     }
   });
 
-  // Calendar navigation
-  btnPrevMonth.addEventListener("click", ()=>{
-    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1);
-    renderCalendar();
-  });
-  btnNextMonth.addEventListener("click", ()=>{
-    calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 1);
-    renderCalendar();
-  });
+  btnPrevMonth.addEventListener("click", ()=>{ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()-1, 1); renderCalendar(); });
+  btnNextMonth.addEventListener("click", ()=>{ calCursor = new Date(calCursor.getFullYear(), calCursor.getMonth()+1, 1); renderCalendar(); });
   btnJumpToday.addEventListener("click", ()=>{
     const t = new Date();
     calCursor = new Date(t.getFullYear(), t.getMonth(), 1);
@@ -996,8 +900,7 @@
   // PWA
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
-      try{ await navigator.serviceWorker.register("./service-worker.js"); }
-      catch(e){ /* silent */ }
+      try{ await navigator.serviceWorker.register("./service-worker.js"); }catch(e){}
     });
   }
 
