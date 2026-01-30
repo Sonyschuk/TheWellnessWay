@@ -42,7 +42,6 @@ h1{margin:0;font-size:22px}
   gap:10px;
   flex-wrap:nowrap;
   overflow-x:auto;
-  -webkit-overflow-scrolling:touch;
 }
 button{
   background:transparent;
@@ -55,11 +54,17 @@ button{
   white-space:nowrap;
   cursor:pointer;
 }
-button:hover{border-color:rgba(255,255,255,.2)}
+
+/* ---------- LAYOUT ---------- */
+.layout{
+  margin-top:14px;
+  display:grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap:14px;
+}
 
 /* ---------- CARD ---------- */
 .card{
-  margin-top:14px;
   padding:16px;
   border-radius:18px;
   border:1px solid var(--line);
@@ -69,29 +74,27 @@ button:hover{border-color:rgba(255,255,255,.2)}
 .sectionTitle{font-weight:800;margin:0 0 8px}
 .subtle{color:var(--muted);font-size:13px}
 
-/* ---------- GRID ---------- */
-/* KEY CHANGE: first column sizes to content */
+/* ---------- GRID (FIXED STRUCTURE) ---------- */
 .grid{
   margin-top:12px;
   display:grid;
   grid-template-columns: max-content repeat(6, 1fr);
+  grid-auto-rows: auto;
   gap:10px;
   align-items:center;
 }
 
-/* headers */
+/* Headers */
 .hdr{
-  font-size:12px;
+  font-size:11px;
   color:var(--muted);
   text-transform:uppercase;
   letter-spacing:.12em;
   text-align:center;
-  padding:6px 4px;
   white-space:nowrap;
 }
 .hdr.left{padding:0}
 
-/* AM / PM bands */
 .hdrBand{
   border:1px solid var(--line);
   border-radius:14px;
@@ -101,10 +104,9 @@ button:hover{border-color:rgba(255,255,255,.2)}
   display:block;
   padding:6px 0;
   font-weight:800;
-  font-size:11px;
 }
 
-/* pillar labels */
+/* Pillars */
 .pill{
   padding:10px 14px;
   border-radius:14px;
@@ -114,10 +116,10 @@ button:hover{border-color:rgba(255,255,255,.2)}
   white-space:nowrap;
 }
 
-/* cells */
+/* Cells */
 .cell{
-  min-height:54px;
-  padding:10px;
+  min-height:48px;
+  padding:8px;
   border-radius:14px;
   border:1px solid var(--line);
   background:var(--cell);
@@ -133,11 +135,28 @@ button:hover{border-color:rgba(255,255,255,.2)}
   color:var(--text);
 }
 
+/* ---------- HISTORY ---------- */
+.calendar{
+  margin-top:10px;
+  display:grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap:8px;
+}
+.day{
+  padding:8px;
+  border-radius:12px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  text-align:center;
+  font-size:13px;
+}
+.day.hasData{background:rgba(255,95,162,.12)}
+
 /* ---------- MOBILE ---------- */
 @media(max-width:980px){
-  .cell{min-height:36px;padding:6px}
+  .layout{grid-template-columns:1fr}
+  .cell{min-height:34px;padding:6px}
   .pill{padding:8px 12px}
-  .hdrBand{margin-top:-6px}
 }
 </style>
 </head>
@@ -155,14 +174,24 @@ button:hover{border-color:rgba(255,255,255,.2)}
       <button id="btnWeekly">Weekly</button>
       <button id="btnMonthly">Monthly</button>
       <button id="btnClear">Clear Day</button>
-      <button id="btnIO">Import / Export</button>
     </div>
   </div>
 
-  <div class="card">
-    <p class="sectionTitle">Daily Map</p>
-    <p class="subtle">Tap where you feel strongest. Multiple selections allowed.</p>
-    <div class="grid" id="grid"></div>
+  <div class="layout">
+
+    <!-- LEFT -->
+    <div class="card">
+      <p class="sectionTitle">Daily Map</p>
+      <p class="subtle">Tap where you feel strongest. Multiple selections allowed.</p>
+      <div class="grid" id="grid"></div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card">
+      <p class="sectionTitle">History</p>
+      <div class="calendar" id="calendar"></div>
+    </div>
+
   </div>
 
 </div>
@@ -170,9 +199,10 @@ button:hover{border-color:rgba(255,255,255,.2)}
 <script>
 const PILLARS=["Energy","Mind","Movement","Nourishment","Connection","Rest"];
 const SLOTS=["E-AM","M-AM","L-AM","E-PM","M-PM","L-PM"];
-const STORE_KEY="daily-flow-final";
+const STORE_KEY="daily-flow-v7";
 
 const grid=document.getElementById("grid");
+const cal=document.getElementById("calendar");
 const label=document.getElementById("activeLabel");
 const todayKey=()=>new Date().toISOString().slice(0,10);
 let activeDay=todayKey();
@@ -184,30 +214,24 @@ function div(t,c){
   d.className=c;
   return d;
 }
-function band(text,start,span){
-  const d=div("", "hdr hdrBand");
-  d.style.gridColumn=`${start} / span ${span}`;
-  d.innerHTML=`<span>${text}</span>`;
-  return d;
-}
 
-function render(){
+function renderGrid(){
   const data=JSON.parse(localStorage.getItem(STORE_KEY)||"{}");
   data[activeDay]??={};
   PILLARS.forEach(p=>data[activeDay][p]??=Array(6).fill(0));
-
   grid.innerHTML="";
 
-  /* AM / PM bands */
+  // Row 1 — AM/PM bands
   grid.append(div("", "hdr left"));
-  grid.append(band("AM",2,3));
-  grid.append(band("PM",5,3));
+  const am=div("", "hdr hdrBand"); am.style.gridColumn="2 / span 3"; am.innerHTML="<span>AM</span>";
+  const pm=div("", "hdr hdrBand"); pm.style.gridColumn="5 / span 3"; pm.innerHTML="<span>PM</span>";
+  grid.append(am); grid.append(pm);
 
-  /* slot headers */
+  // Row 2 — slot labels
   grid.append(div("", "hdr"));
   SLOTS.forEach(s=>grid.append(div(s,"hdr")));
 
-  /* rows */
+  // Rows — data
   PILLARS.forEach(p=>{
     grid.append(div(p,"pill"));
     data[activeDay][p].forEach((v,i)=>{
@@ -215,10 +239,19 @@ function render(){
       c.onclick=()=>{
         data[activeDay][p][i]^=1;
         localStorage.setItem(STORE_KEY,JSON.stringify(data));
-        render();
+        renderGrid(); renderCalendar();
       };
       grid.append(c);
     });
+  });
+}
+
+function renderCalendar(){
+  const data=JSON.parse(localStorage.getItem(STORE_KEY)||"{}");
+  cal.innerHTML="";
+  Object.keys(data).sort().slice(-21).forEach(d=>{
+    const day=div(d.split("-")[2],"day"+(Object.values(data[d]).some(a=>a.some(x=>x))?" hasData":""));
+    cal.append(day);
   });
 }
 
@@ -226,7 +259,8 @@ if("serviceWorker"in navigator){
   navigator.serviceWorker.register("./service-worker.js");
 }
 
-render();
+renderGrid();
+renderCalendar();
 </script>
 </body>
 </html>
