@@ -277,12 +277,43 @@
 
     details summary{cursor:pointer; font-weight:700}
 
-    @media(max-width:980px){
-      .layout{grid-template-columns: 1fr}
-      .grid,.weeklyGrid,.monthlyGrid{grid-template-columns: 120px repeat(6, minmax(0, 1fr))}
-      .pill{padding:12px 10px}
-      button{font-size:16px; padding:12px 14px;} /* phone-friendly */
-      .hdr{font-size:11px;}
+    /* keep columns even + slightly narrower label column */
+  .grid,.weeklyGrid,.monthlyGrid{grid-template-columns: 108px repeat(6, minmax(0, 1fr))}
+
+  /* tighter row height */
+  .cell, .wkcell, .mkcell{
+    min-height: 40px;       /* was 54px */
+    padding: 6px;           /* was 10px */
+    border-radius: 12px;
+  }
+
+  /* tighter pillar label row */
+  .pill{
+    padding: 8px 8px;       /* was 12px 10px */
+    border-radius: 12px;
+    font-size: 13px;
+  }
+
+  /* slightly smaller headers to reduce vertical space */
+  .hdr{
+    font-size: 10px;
+    padding: 6px 6px;       /* was 10px 8px */
+  }
+  .hdrBand span{
+    padding: 6px 0;         /* was 10px 0 */
+    font-size: 11px;
+  }
+
+  /* top buttons still readable but not chunky */
+  button{
+    font-size: 15px;
+    padding: 10px 12px;
+  }
+
+  /* reduce card padding a touch to fit everything */
+  .card{padding: 12px}
+  .legend{margin-top: 8px}
+}
     }
   </style>
 </head>
