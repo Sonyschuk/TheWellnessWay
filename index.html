@@ -1,217 +1,145 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Daily Flow — 6 Pillars</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Daily Flow — 6 Pillars</title>
 
-  <!-- PWA -->
-  <meta name="theme-color" content="#0b1220" />
-  <link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0b1220" />
+<link rel="manifest" href="manifest.json" />
 
-  <style>
-    :root{
-      --bg:#0b1220;
-      --line:rgba(255,255,255,.08);
-      --muted:#93a4c7;
-      --text:#e8eefc;
-      --cell:#0f1729;
-      --pink:#ff5fa2;
-      --pinkSoft: rgba(255,95,162,.22);
-      --good: rgba(86,232,170,.18);
-      --warn: rgba(255,210,110,.18);
-      --bad: rgba(255,120,120,.18);
-    }
+<style>
+:root{
+  --bg:#0b1220;
+  --line:rgba(255,255,255,.08);
+  --muted:#93a4c7;
+  --text:#e8eefc;
+  --cell:#0f1729;
+  --pink:#ff5fa2;
+  --pinkSoft: rgba(255,95,162,.22);
+}
+*{box-sizing:border-box}
 
-    *{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;
+  background:
+    radial-gradient(1200px 600px at 20% 0%, rgba(255,95,162,.12), transparent 60%),
+    radial-gradient(900px 500px at 100% 30%, rgba(43,108,255,.14), transparent 55%),
+    var(--bg);
+  color:var(--text);
+}
 
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 600px at 20% 0%, rgba(255,95,162,.12), transparent 60%),
-        radial-gradient(900px 500px at 100% 30%, rgba(43,108,255,.14), transparent 55%),
-        var(--bg);
-      color:var(--text);
-    }
+.wrap{max-width:1180px;margin:0 auto;padding:24px}
 
-    .wrap{max-width:1180px;margin:0 auto;padding:24px}
+/* ---------- TOP ---------- */
+.topbar{display:flex;gap:12px;justify-content:space-between;flex-wrap:wrap}
+h1{margin:0;font-size:22px}
+.date{color:var(--muted);font-size:14px;margin-top:4px}
 
-    /* ---------- TOP BAR ---------- */
-    .topbar{
-      display:flex;
-      gap:12px;
-      justify-content:space-between;
-      flex-wrap:wrap;
-    }
+.btnrow{
+  display:flex;
+  gap:10px;
+  flex-wrap:nowrap;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+button{
+  background:transparent;
+  border:1px solid var(--line);
+  color:var(--text);
+  padding:12px 14px;
+  border-radius:14px;
+  font-size:15px;
+  font-weight:650;
+  white-space:nowrap;
+  cursor:pointer;
+}
+button:hover{border-color:rgba(255,255,255,.2)}
 
-    h1{margin:0;font-size:22px}
-    .date{color:var(--muted);font-size:14px;margin-top:4px}
+/* ---------- CARD ---------- */
+.card{
+  margin-top:14px;
+  padding:16px;
+  border-radius:18px;
+  border:1px solid var(--line);
+  background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+  box-shadow:0 10px 30px rgba(0,0,0,.25);
+}
+.sectionTitle{font-weight:800;margin:0 0 8px}
+.subtle{color:var(--muted);font-size:13px}
 
-    .btnrow{
-      display:flex;
-      gap:10px;
-      flex-wrap:nowrap;
-      overflow-x:auto;
-      -webkit-overflow-scrolling:touch;
-    }
+/* ---------- GRID ---------- */
+/* KEY CHANGE: first column sizes to content */
+.grid{
+  margin-top:12px;
+  display:grid;
+  grid-template-columns: max-content repeat(6, 1fr);
+  gap:10px;
+  align-items:center;
+}
 
-    button{
-      background:transparent;
-      border:1px solid var(--line);
-      color:var(--text);
-      padding:12px 14px;
-      border-radius:14px;
-      font-size:15px;
-      font-weight:650;
-      white-space:nowrap;
-      cursor:pointer;
-    }
-    button:hover{border-color:rgba(255,255,255,.2)}
+/* headers */
+.hdr{
+  font-size:12px;
+  color:var(--muted);
+  text-transform:uppercase;
+  letter-spacing:.12em;
+  text-align:center;
+  padding:6px 4px;
+  white-space:nowrap;
+}
+.hdr.left{padding:0}
 
-    /* ---------- CARDS ---------- */
-    .card{
-      margin-top:14px;
-      padding:16px;
-      border-radius:18px;
-      border:1px solid var(--line);
-      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
-      box-shadow:0 10px 30px rgba(0,0,0,.25);
-    }
+/* AM / PM bands */
+.hdrBand{
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:rgba(255,255,255,.02);
+}
+.hdrBand span{
+  display:block;
+  padding:6px 0;
+  font-weight:800;
+  font-size:11px;
+}
 
-    .sectionTitle{font-weight:800;margin:0 0 8px 0}
-    .subtle{color:var(--muted);font-size:13px;line-height:1.35}
+/* pillar labels */
+.pill{
+  padding:10px 14px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:rgba(255,255,255,.02);
+  font-weight:700;
+  white-space:nowrap;
+}
 
-    .layout{
-      margin-top:14px;
-      display:grid;
-      grid-template-columns:1.6fr 1fr;
-      gap:14px;
-    }
+/* cells */
+.cell{
+  min-height:54px;
+  padding:10px;
+  border-radius:14px;
+  border:1px solid var(--line);
+  background:var(--cell);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  cursor:pointer;
+  color:var(--muted);
+}
+.cell.on{
+  background:var(--pinkSoft);
+  border-color:rgba(255,95,162,.55);
+  color:var(--text);
+}
 
-    /* ---------- GRID ---------- */
-    .grid,.weeklyGrid,.monthlyGrid{
-      margin-top:12px;
-      display:grid;
-      grid-template-columns:170px repeat(6, minmax(0,1fr));
-      gap:10px;
-    }
-
-    .hdr{
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.12em;
-      padding:8px 6px;
-      text-align:center;
-      white-space:nowrap;
-    }
-    .hdr.left{padding:0}
-
-    .hdrBand{
-      border:1px solid var(--line);
-      border-radius:14px;
-      background:rgba(255,255,255,.02);
-    }
-    .hdrBand span{
-      display:block;
-      padding:6px 0;
-      font-weight:800;
-      font-size:11px;
-    }
-
-    .pill{
-      padding:10px 10px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-      font-weight:700;
-    }
-
-    .cell,.wkcell,.mkcell{
-      min-height:54px;
-      padding:10px;
-      border-radius:14px;
-      border:1px solid var(--line);
-      background:var(--cell);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      color:var(--muted);
-    }
-
-    .cell.on{
-      background:var(--pinkSoft);
-      border-color:rgba(255,95,162,.55);
-      color:var(--text);
-    }
-
-    .wkcell strong,.mkcell strong{color:var(--text)}
-
-    /* ---------- CALENDAR ---------- */
-    .calendar{
-      margin-top:10px;
-      display:grid;
-      grid-template-columns:repeat(7,1fr);
-      gap:8px;
-    }
-    .day{
-      padding:8px;
-      border-radius:12px;
-      border:1px solid var(--line);
-      background:rgba(255,255,255,.02);
-      cursor:pointer;
-      color:var(--muted);
-    }
-    .day.hasData{background:rgba(255,95,162,.10)}
-    .day.selected{
-      border-color:rgba(255,95,162,.6);
-      color:var(--text);
-    }
-
-    /* ---------- IMPORT EXPORT ---------- */
-    textarea{
-      width:100%;
-      min-height:140px;
-      background:rgba(15,23,41,.75);
-      border:1px solid rgba(255,255,255,.1);
-      border-radius:14px;
-      color:var(--text);
-      padding:12px;
-      font-family:monospace;
-      font-size:12px;
-    }
-
-    /* ---------- TOAST ---------- */
-    .toast{
-      position:fixed;
-      bottom:18px;
-      left:50%;
-      transform:translateX(-50%);
-      padding:10px 14px;
-      border-radius:14px;
-      border:1px solid rgba(255,255,255,.1);
-      background:rgba(15,23,41,.95);
-      display:none;
-      font-size:13px;
-    }
-
-    /* ---------- MOBILE FIXES ---------- */
-    @media(max-width:980px){
-      .layout{grid-template-columns:1fr}
-
-      /* KEEP COLUMNS SAME — ONLY ROW HEIGHT */
-      .cell,.wkcell,.mkcell{
-        min-height:36px;
-        padding:6px;
-      }
-
-      .pill{padding:8px}
-
-      .hdrBand{margin-top:-6px}
-    }
-  </style>
+/* ---------- MOBILE ---------- */
+@media(max-width:980px){
+  .cell{min-height:36px;padding:6px}
+  .pill{padding:8px 12px}
+  .hdrBand{margin-top:-6px}
+}
+</style>
 </head>
 
 <body>
@@ -231,132 +159,74 @@
     </div>
   </div>
 
-  <div class="layout">
-
-    <!-- LEFT -->
-    <div>
-
-      <div class="card" id="viewToday">
-        <p class="sectionTitle">Daily Map</p>
-        <p class="subtle">Tap where you feel strongest. Multiple selections allowed.</p>
-        <div class="grid" id="grid"></div>
-      </div>
-
-      <div class="card" id="viewWeekly" style="display:none;">
-        <p class="sectionTitle">Weekly Heatmap</p>
-        <div class="weeklyGrid" id="weeklyGrid"></div>
-      </div>
-
-      <div class="card" id="viewMonthly" style="display:none;">
-        <p class="sectionTitle">Monthly Heatmap</p>
-        <div class="monthlyGrid" id="monthlyGrid"></div>
-      </div>
-
-      <div class="card" id="ioCard" style="display:none;">
-        <p class="sectionTitle">Import / Export</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button id="shareBtn">Share</button>
-          <button id="copyBtn">Copy</button>
-        </div>
-        <textarea id="ioText"></textarea>
-      </div>
-
-    </div>
-
-    <!-- RIGHT -->
-    <div class="card">
-      <p class="sectionTitle">History</p>
-      <div class="calendar" id="calendar"></div>
-    </div>
-
+  <div class="card">
+    <p class="sectionTitle">Daily Map</p>
+    <p class="subtle">Tap where you feel strongest. Multiple selections allowed.</p>
+    <div class="grid" id="grid"></div>
   </div>
 
 </div>
 
-<div class="toast" id="toast"></div>
-
 <script>
-/* ---------------- DATA ---------------- */
 const PILLARS=["Energy","Mind","Movement","Nourishment","Connection","Rest"];
-const SLOTS=["Early AM","Mid AM","Late AM","Early PM","Mid PM","Late PM"];
+const SLOTS=["E-AM","M-AM","L-AM","E-PM","M-PM","L-PM"];
 const STORE_KEY="daily-flow-final";
 
-/* ---------------- HELPERS ---------------- */
-const $=id=>document.getElementById(id);
+const grid=document.getElementById("grid");
+const label=document.getElementById("activeLabel");
 const todayKey=()=>new Date().toISOString().slice(0,10);
 let activeDay=todayKey();
+label.textContent="Selected day: "+activeDay;
 
-/* ---------------- INIT ---------------- */
-$("activeLabel").textContent="Selected day: "+activeDay;
+function div(t,c){
+  const d=document.createElement("div");
+  d.textContent=t;
+  d.className=c;
+  return d;
+}
+function band(text,start,span){
+  const d=div("", "hdr hdrBand");
+  d.style.gridColumn=`${start} / span ${span}`;
+  d.innerHTML=`<span>${text}</span>`;
+  return d;
+}
 
-/* ---------------- GRID ---------------- */
-function renderGrid(){
+function render(){
   const data=JSON.parse(localStorage.getItem(STORE_KEY)||"{}");
   data[activeDay]??={};
   PILLARS.forEach(p=>data[activeDay][p]??=Array(6).fill(0));
 
-  const g=$("grid");
-  g.innerHTML="";
+  grid.innerHTML="";
 
-  g.append(div("","hdr left"));
-  g.append(spanBand("AM",2,3));
-  g.append(spanBand("PM",5,3));
+  /* AM / PM bands */
+  grid.append(div("", "hdr left"));
+  grid.append(band("AM",2,3));
+  grid.append(band("PM",5,3));
 
-  g.append(div("","hdr"));
-  SLOTS.forEach(s=>g.append(div(s,"hdr")));
+  /* slot headers */
+  grid.append(div("", "hdr"));
+  SLOTS.forEach(s=>grid.append(div(s,"hdr")));
 
+  /* rows */
   PILLARS.forEach(p=>{
-    g.append(div(p,"pill"));
+    grid.append(div(p,"pill"));
     data[activeDay][p].forEach((v,i)=>{
       const c=div("", "cell"+(v?" on":""));
       c.onclick=()=>{
         data[activeDay][p][i]^=1;
         localStorage.setItem(STORE_KEY,JSON.stringify(data));
-        renderGrid();
+        render();
       };
-      g.append(c);
+      grid.append(c);
     });
   });
 }
 
-/* ---------------- UI HELPERS ---------------- */
-function div(t,c){const d=document.createElement("div");d.textContent=t;d.className=c;return d;}
-function spanBand(t,start,span){
-  const d=div("", "hdr hdrBand");
-  d.style.gridColumn=`${start} / span ${span}`;
-  d.innerHTML=`<span>${t}</span>`;
-  return d;
-}
-
-/* ---------------- VIEW SWITCH ---------------- */
-$("btnToday").onclick=()=>show("viewToday");
-$("btnWeekly").onclick=()=>show("viewWeekly");
-$("btnMonthly").onclick=()=>show("viewMonthly");
-$("btnIO").onclick=()=>$("ioCard").style.display=$("ioCard").style.display?"":"none";
-
-function show(id){
-  ["viewToday","viewWeekly","viewMonthly"].forEach(v=>$(v).style.display="none");
-  $(id).style.display="";
-}
-
-/* ---------------- SHARE ---------------- */
-$("shareBtn").onclick=async()=>{
-  const data=JSON.stringify(localStorage.getItem(STORE_KEY));
-  if(navigator.share){
-    await navigator.share({text:data});
-  }else{
-    navigator.clipboard.writeText(data);
-  }
-};
-
-/* ---------------- SERVICE WORKER ---------------- */
 if("serviceWorker"in navigator){
   navigator.serviceWorker.register("./service-worker.js");
 }
 
-/* ---------------- START ---------------- */
-renderGrid();
+render();
 </script>
-
 </body>
 </html>
