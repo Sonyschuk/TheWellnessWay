@@ -160,31 +160,41 @@
       margin:0;
     }
 
-    /* ✅ Option A: display areas fit content (no extra blank space) */
-    .journalText{
-      margin-top:6px;
-      padding:6px;
-      border-radius:10px;
-      background: rgba(15,23,41,.45);
-      border:1px solid rgba(255,255,255,.06);
-      white-space:pre-wrap;
-      min-height: 0;
-    }
-    .journalText .label{
-      display:block;
-      color:var(--muted);
-      font-size:12px;
-      margin-bottom:4px;
-    }
-    .journalText .value{
-      display:block;
-      color:var(--text);
-      font-size:14px;
-      line-height:1.2;
-    }
-    .journalText .empty{
-      color:var(--muted);
-    }
+      /* --------- Journal lines (tight, inline label + text) --------- */
+.journalLine{
+  margin-top:10px;
+  padding:10px 12px;
+  border-radius:14px;
+  background: rgba(15,23,41,.45);
+  border:1px solid rgba(255,255,255,.06);
+
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+}
+
+.jLabel{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  margin-top:2px;
+}
+
+.jValue{
+  color:var(--text);
+  font-size:14px;
+  line-height:1.35;
+  flex:1;
+  white-space:pre-wrap;
+}
+
+.jValue .empty{
+  color:var(--muted);
+}
+
 
     .dots{
       display:flex;
