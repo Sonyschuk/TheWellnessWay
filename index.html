@@ -69,6 +69,7 @@
     .grid{
       margin-top:12px;
       display:grid;
+      /* Pillar column fits longest word (Nourishment), remaining 6 even */
       grid-template-columns: max-content repeat(6, minmax(0, 1fr));
       gap:10px;
       align-items:center;
@@ -148,52 +149,51 @@
       padding:12px;
     }
     .journalTop{
-      display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      align-items:flex-start;
     }
-    .journalTitle{font-weight:800;margin:0}
-.journalTitle{
-  font-weight:800;
-  margin:0;
-}
+    .journalTitle{
+      font-weight:800;
+      margin:0;
+    }
 
-.journalText{
-  margin-top:10px;
-  padding:10px 12px;                 /* slightly tighter */
-  border-radius:14px;
-  background: rgba(15,23,41,.45);
-  border:1px solid rgba(255,255,255,.06);
-  white-space:pre-wrap;
+    /* ✅ Option A: display areas fit content (no extra blank space) */
+    .journalText{
+      margin-top:10px;
+      padding:10px 12px;
+      border-radius:14px;
+      background: rgba(15,23,41,.45);
+      border:1px solid rgba(255,255,255,.06);
+      white-space:pre-wrap;
+      min-height: 0;
+    }
+    .journalText .label{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      margin-bottom:4px;
+    }
+    .journalText .value{
+      display:block;
+      color:var(--text);
+      font-size:14px;
+      line-height:1.35;
+    }
+    .journalText .empty{
+      color:var(--muted);
+    }
 
-  /* ✅ Option A: fit content (no extra blank space) */
-  min-height: 0;
-}
-
-.journalText .label{
-  display:block;
-  color:var(--muted);
-  font-size:12px;
-  margin-bottom:4px;
-}
-
-.journalText .value{
-  display:block;
-  color:var(--text);
-  font-size:14px;
-  line-height:1.35;
-}
-
-.journalText .empty{
-  color:var(--muted);
-}
-
-.dots{
-  display:flex;
-  gap:10px;
-  align-items:center;
-  margin-top:10px;
-  flex-wrap:wrap;
-}
-  .dotLabel{color:var(--muted); font-size:12px}
+    .dots{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-top:10px;
+      flex-wrap:wrap;
+    }
+    .dotLabel{color:var(--muted); font-size:12px}
     .dotRow{display:flex; gap:8px; align-items:center}
     .dotBtn{
       width:18px;height:18px;border-radius:999px;
@@ -289,7 +289,7 @@
     .view{display:none}
     .view.active{display:block}
 
-    /* --------- MODAL (Edit intention + gratitude) --------- */
+    /* --------- MODALS (Edit journal + IO) --------- */
     .overlay{
       position:fixed;
       inset:0;
@@ -341,7 +341,7 @@
       flex-wrap:wrap;
     }
 
-    /* Mobile */
+    /* mobile */
     @media(max-width:980px){
       .layout{grid-template-columns:1fr}
       .cell,.hmcell{min-height:34px;padding:6px}
@@ -478,15 +478,15 @@
     </div>
   </div>
 
-  <!-- Modal -->
-  <div class="overlay" id="overlay">
+  <!-- Journal Modal -->
+  <div class="overlay" id="journalOverlay">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="journalTitle">
       <div class="modalTop">
         <div>
           <h2 id="journalTitle">Edit Daily Intention + Gratitude</h2>
           <div class="hint" id="journalDateHint"></div>
         </div>
-        <button class="miniBtn" id="btnCloseModal">Close</button>
+        <button class="miniBtn" id="btnCloseJournal">Close</button>
       </div>
 
       <div class="field">
@@ -500,61 +500,63 @@
       </div>
 
       <div class="modalActions">
-        <button class="miniBtn" id="btnCancelModal">Cancel</button>
-        <button class="miniBtn primary" id="btnSaveModal">Save</button>
+        <button class="miniBtn" id="btnCancelJournal">Cancel</button>
+        <button class="miniBtn primary" id="btnSaveJournal">Save</button>
       </div>
     </div>
   </div>
+
   <!-- Import / Export Modal -->
-<div class="overlay" id="ioOverlay">
-  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ioTitle">
-    <div class="modalTop">
-      <div>
-        <h2 id="ioTitle">Import / Export</h2>
-        <div class="hint">Backup your data before updates, then restore it after.</div>
+  <div class="overlay" id="ioOverlay">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ioTitle">
+      <div class="modalTop">
+        <div>
+          <h2 id="ioTitle">Import / Export</h2>
+          <div class="hint">Backup your data before updates, then restore it after.</div>
+        </div>
+        <button class="miniBtn" id="btnCloseIO">Close</button>
       </div>
-      <button class="miniBtn" id="btnCloseIO">Close</button>
-    </div>
 
-    <div class="field">
-      <label>Export</label>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button class="miniBtn" id="btnDownloadJSON">Download Backup (.json)</button>
-        <button class="miniBtn" id="btnCopyJSON">Copy JSON</button>
+      <div class="field">
+        <label>Export</label>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+          <button class="miniBtn" id="btnDownloadJSON">Download Backup (.json)</button>
+          <button class="miniBtn" id="btnCopyJSON">Copy JSON</button>
+        </div>
+        <div class="hint" id="exportHint" style="margin-top:8px;"></div>
       </div>
-      <div class="hint" id="exportHint" style="margin-top:8px;"></div>
-    </div>
 
-    <div class="field">
-      <label>Import</label>
-      <div class="hint">Import a backup file or paste JSON below.</div>
+      <div class="field">
+        <label>Import</label>
+        <div class="hint">Import a backup file or paste JSON below.</div>
 
-      <input id="importFile" type="file" accept=".json,application/json,.txt" style="margin-top:10px;color:var(--muted);" />
+        <input id="importFile" type="file" accept=".json,application/json,.txt" style="margin-top:10px;color:var(--muted);" />
+        <textarea id="importText" placeholder="Paste backup JSON here (optional)"></textarea>
 
-      <textarea id="importText" placeholder="Paste backup JSON here (optional)"></textarea>
-
-      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;">
-        <label style="display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;">
-          <input type="checkbox" id="chkReplace" />
-          Replace all existing data (unchecked = merge)
-        </label>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;">
+          <label style="display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;">
+            <input type="checkbox" id="chkReplace" />
+            Replace all existing data (unchecked = merge)
+          </label>
+        </div>
       </div>
-    </div>
 
-    <div class="modalActions">
-      <button class="miniBtn" id="btnImportRun">Import</button>
-    </div>
+      <div class="modalActions">
+        <button class="miniBtn" id="btnImportRun">Import</button>
+      </div>
 
-    <div class="hint" id="ioStatus" style="margin-top:10px;"></div>
+      <div class="hint" id="ioStatus" style="margin-top:10px;"></div>
+    </div>
   </div>
-</div>
-
 
 <script>
   const PILLARS = ["Energy","Mind","Movement","Nourishment","Connection","Rest"];
   const SLOTS = ["E-AM","M-AM","L-AM","E-PM","M-PM","L-PM"];
 
+  // Stable key
   const STORE_KEY = "dailyFlow.pillars.main";
+
+  // Legacy keys (migration safety net)
   const LEGACY_KEYS = [
     "dailyFlow.pillars.v6",
     "dailyFlow.pillars.v5",
@@ -589,24 +591,37 @@
   const btnInstall = document.getElementById("btnInstall");
   let deferredInstallPrompt = null;
 
+  // Pillar descriptions
+  const btnToggleDesc = document.getElementById("btnToggleDesc");
+  const descPanel = document.getElementById("descPanel");
+
   // Journal view
   const intentionView = document.getElementById("intentionView");
   const gratitudeView = document.getElementById("gratitudeView");
   const dotRow = document.getElementById("dotRow");
 
   // Journal modal
-  const overlay = document.getElementById("overlay");
+  const journalOverlay = document.getElementById("journalOverlay");
   const btnEditJournal = document.getElementById("btnEditJournal");
-  const btnCloseModal = document.getElementById("btnCloseModal");
-  const btnCancelModal = document.getElementById("btnCancelModal");
-  const btnSaveModal = document.getElementById("btnSaveModal");
+  const btnCloseJournal = document.getElementById("btnCloseJournal");
+  const btnCancelJournal = document.getElementById("btnCancelJournal");
+  const btnSaveJournal = document.getElementById("btnSaveJournal");
   const intentionInput = document.getElementById("intentionInput");
   const gratitudeInput = document.getElementById("gratitudeInput");
   const journalDateHint = document.getElementById("journalDateHint");
 
-  // Pillar descriptions
-  const btnToggleDesc = document.getElementById("btnToggleDesc");
-  const descPanel = document.getElementById("descPanel");
+  // Import/Export modal
+  const btnIO = document.getElementById("btnIO");
+  const ioOverlay = document.getElementById("ioOverlay");
+  const btnCloseIO = document.getElementById("btnCloseIO");
+  const btnDownloadJSON = document.getElementById("btnDownloadJSON");
+  const btnCopyJSON = document.getElementById("btnCopyJSON");
+  const importFile = document.getElementById("importFile");
+  const importText = document.getElementById("importText");
+  const chkReplace = document.getElementById("chkReplace");
+  const btnImportRun = document.getElementById("btnImportRun");
+  const exportHint = document.getElementById("exportHint");
+  const ioStatus = document.getElementById("ioStatus");
 
   let activeDateKey = isoLocalDate(new Date());
   let calCursor = new Date();
@@ -620,6 +635,10 @@
   function safeParse(json){
     try { return JSON.parse(json); } catch(e){ return null; }
   }
+
+  // Storage
+  function loadAll(){ return safeParse(localStorage.getItem(STORE_KEY) || "{}") || {}; }
+  function saveAll(data){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
 
   function migrateIfNeeded(){
     const current = safeParse(localStorage.getItem(STORE_KEY) || "{}") || {};
@@ -641,15 +660,11 @@
     if(changed) localStorage.setItem(STORE_KEY, JSON.stringify(current));
   }
 
-  function loadAll(){ return safeParse(localStorage.getItem(STORE_KEY) || "{}") || {}; }
-  function saveAll(data){ localStorage.setItem(STORE_KEY, JSON.stringify(data)); }
-
   function ensureDay(data, dateKey){
     if(!data[dateKey]) data[dateKey] = {};
     for(const p of PILLARS){
       if(!data[dateKey][p]) data[dateKey][p] = Array(6).fill(0);
     }
-    // journal fields
     if(typeof data[dateKey].intentionText !== "string") data[dateKey].intentionText = "";
     if(typeof data[dateKey].gratitudeText !== "string") data[dateKey].gratitudeText = "";
     if(typeof data[dateKey].intentionScore !== "number") data[dateKey].intentionScore = 0; // 0-3
@@ -658,6 +673,7 @@
 
   function dayHasAnySelection(dayObj){
     if(!dayObj) return false;
+
     if((dayObj.intentionText || "").trim().length > 0) return true;
     if((dayObj.gratitudeText || "").trim().length > 0) return true;
     if((dayObj.intentionScore || 0) > 0) return true;
@@ -689,6 +705,7 @@
     renderHistoryList();
   }
 
+  // Grid helpers
   function cellDiv(text, cls){
     const d = document.createElement("div");
     d.className = cls;
@@ -701,7 +718,6 @@
     d.textContent = text;
     return d;
   }
-
   function addHeaderRows(targetEl){
     targetEl.appendChild(cellDiv("", "hdr left"));
 
@@ -721,7 +737,7 @@
     for(const s of SLOTS) targetEl.appendChild(cellDiv(s, "hdr"));
   }
 
-  // Journal rendering (single display)
+  // Journal render
   function renderJournal(){
     const all = ensureDay(loadAll(), activeDateKey);
     const day = all[activeDateKey];
@@ -742,7 +758,7 @@
       b.addEventListener("click", () => {
         const latest = ensureDay(loadAll(), activeDateKey);
         latest[activeDateKey].intentionScore =
-          (latest[activeDateKey].intentionScore === i) ? 0 : i; // tap again clears
+          (latest[activeDateKey].intentionScore === i) ? 0 : i;
         saveAll(latest);
         renderJournal();
         renderCalendar();
@@ -752,37 +768,37 @@
     }
   }
 
-  // Modal controls
-  function openModal(){
+  // Journal modal controls
+  function openJournalModal(){
     const all = ensureDay(loadAll(), activeDateKey);
     const day = all[activeDateKey];
     journalDateHint.textContent = `Selected day: ${activeDateKey}`;
     intentionInput.value = day.intentionText || "";
     gratitudeInput.value = day.gratitudeText || "";
-    overlay.classList.add("show");
+    journalOverlay.classList.add("show");
     setTimeout(()=> intentionInput.focus(), 30);
   }
-  function closeModal(){
-    overlay.classList.remove("show");
+  function closeJournalModal(){
+    journalOverlay.classList.remove("show");
   }
 
-  btnEditJournal.addEventListener("click", openModal);
-  btnCloseModal.addEventListener("click", closeModal);
-  btnCancelModal.addEventListener("click", closeModal);
-  overlay.addEventListener("click", (e)=>{ if(e.target === overlay) closeModal(); });
+  btnEditJournal.addEventListener("click", openJournalModal);
+  btnCloseJournal.addEventListener("click", closeJournalModal);
+  btnCancelJournal.addEventListener("click", closeJournalModal);
+  journalOverlay.addEventListener("click", (e)=>{ if(e.target === journalOverlay) closeJournalModal(); });
 
-  btnSaveModal.addEventListener("click", ()=>{
+  btnSaveJournal.addEventListener("click", ()=>{
     const latest = ensureDay(loadAll(), activeDateKey);
     latest[activeDateKey].intentionText = intentionInput.value || "";
     latest[activeDateKey].gratitudeText = gratitudeInput.value || "";
     saveAll(latest);
-    closeModal();
+    closeJournalModal();
     renderJournal();
     renderCalendar();
     renderHistoryList();
   });
 
-  // Daily grid
+  // Daily map render
   function renderToday(){
     const all = ensureDay(loadAll(), activeDateKey);
     const today = all[activeDateKey];
@@ -948,17 +964,18 @@
     for(const k of keys.slice(0, 20)){
       const item = document.createElement("div");
       item.className = "historyItem";
+
       const count = countSelectionsInDay(all[k]);
       const it = (all[k].intentionText || "").trim();
       const gt = (all[k].gratitudeText || "").trim();
       const score = all[k].intentionScore || 0;
 
+      const preview = it || gt ? (it ? it : gt) : "No journal";
+      const clipped = preview.length > 36 ? preview.slice(0,36) + "…" : preview;
+
       const right = [];
       if(score) right.push(`${score}/3`);
       right.push(`${count} taps`);
-
-      const preview = it || gt ? (it ? it : gt) : "No journal";
-      const clipped = preview.length > 36 ? preview.slice(0,36) + "…" : preview;
 
       item.innerHTML = `
         <div>
@@ -985,12 +1002,12 @@
   btnWeeklyView.addEventListener("click", ()=> setView("viewWeekly"));
   btnMonthlyView.addEventListener("click", ()=> setView("viewMonthly"));
 
-  // Clear
+  // Clear day
   btnClear.addEventListener("click", ()=>{
     const all = loadAll();
     if(all[activeDateKey]) delete all[activeDateKey];
     saveAll(all);
-    closeModal();
+    closeJournalModal();
     renderToday(); renderWeekly(); renderMonthly(); renderCalendar(); renderHistoryList();
   });
 
@@ -1028,7 +1045,145 @@
     btnInstall.classList.add("hidden");
   });
 
-  // Service worker
+  // ---------- Import / Export ----------
+  function openIO(){
+    const all = loadAll();
+    exportHint.textContent = `${Object.keys(all).length} day(s) currently stored.`;
+    ioStatus.textContent = "";
+    importText.value = "";
+    importFile.value = "";
+    chkReplace.checked = false;
+    ioOverlay.classList.add("show");
+  }
+  function closeIO(){
+    ioOverlay.classList.remove("show");
+  }
+
+  function buildExportPayload(){
+    const data = loadAll();
+    return {
+      app: "Daily Flow — 6 Pillars",
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      storeKey: STORE_KEY,
+      data
+    };
+  }
+
+  function downloadJSON(){
+    const payload = buildExportPayload();
+    const json = JSON.stringify(payload, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    const d = new Date();
+    const fname = `daily-flow-backup-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`;
+    a.href = url;
+    a.download = fname;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+
+    ioStatus.textContent = `Downloaded: ${fname}`;
+  }
+
+  async function copyJSON(){
+    const payload = buildExportPayload();
+    const json = JSON.stringify(payload, null, 2);
+    try{
+      await navigator.clipboard.writeText(json);
+      ioStatus.textContent = "Copied export JSON to clipboard.";
+    }catch(e){
+      importText.value = json;
+      ioStatus.textContent = "Clipboard blocked — export JSON placed in the box for manual copy.";
+    }
+  }
+
+  function isPlainObject(x){
+    return x && typeof x === "object" && !Array.isArray(x);
+  }
+
+  function normalizeImportedData(obj){
+    if(isPlainObject(obj) && isPlainObject(obj.data)) return obj.data;
+    return obj;
+  }
+
+  function mergeData(existing, incoming){
+    const out = { ...existing };
+    for(const k of Object.keys(incoming)){
+      out[k] = incoming[k];
+    }
+    return out;
+  }
+
+  function runImportFromObject(obj){
+    const incomingRaw = normalizeImportedData(obj);
+    if(!isPlainObject(incomingRaw)){
+      throw new Error("Import does not contain a valid data object.");
+    }
+
+    const existing = loadAll();
+    const replace = chkReplace.checked;
+    const next = replace ? incomingRaw : mergeData(existing, incomingRaw);
+
+    saveAll(next);
+    migrateIfNeeded();
+    setActiveDate(activeDateKey);
+
+    ioStatus.textContent = replace
+      ? "Import complete (replaced all data)."
+      : "Import complete (merged with existing data).";
+  }
+
+  function importFromFile(file){
+    return new Promise((resolve, reject)=>{
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const obj = JSON.parse(String(reader.result || ""));
+          resolve(obj);
+        }catch(e){
+          reject(new Error("Could not parse the file as JSON."));
+        }
+      };
+      reader.onerror = () => reject(new Error("Could not read file."));
+      reader.readAsText(file);
+    });
+  }
+
+  btnIO.addEventListener("click", openIO);
+  btnCloseIO.addEventListener("click", closeIO);
+  ioOverlay.addEventListener("click", (e)=>{ if(e.target === ioOverlay) closeIO(); });
+
+  btnDownloadJSON.addEventListener("click", downloadJSON);
+  btnCopyJSON.addEventListener("click", copyJSON);
+
+  btnImportRun.addEventListener("click", async ()=>{
+    ioStatus.textContent = "";
+    try{
+      if(importFile.files && importFile.files[0]){
+        const obj = await importFromFile(importFile.files[0]);
+        runImportFromObject(obj);
+        renderToday(); renderWeekly(); renderMonthly(); renderCalendar(); renderHistoryList();
+        return;
+      }
+
+      const txt = (importText.value || "").trim();
+      if(!txt){
+        ioStatus.textContent = "Choose a file OR paste JSON before importing.";
+        return;
+      }
+      const obj = JSON.parse(txt);
+      runImportFromObject(obj);
+      renderToday(); renderWeekly(); renderMonthly(); renderCalendar(); renderHistoryList();
+    }catch(err){
+      ioStatus.textContent = `Import failed: ${err.message}`;
+    }
+  });
+
+  // ---------- Service Worker ----------
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try{
