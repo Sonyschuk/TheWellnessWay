@@ -151,26 +151,49 @@
       display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:flex-start;
     }
     .journalTitle{font-weight:800;margin:0}
-    .journalText{
-      margin-top:10px;
-      padding:12px;
-      border-radius:14px;
-      background: rgba(15,23,41,.45);
-      border:1px solid rgba(255,255,255,.06);
-      white-space:pre-wrap;
-    }
-    .journalText .label{display:block;color:var(--muted);font-size:12px;margin-bottom:6px}
-    .journalText .value{display:block;color:var(--text);font-size:14px;line-height:1.35}
-    .journalText .empty{color:var(--muted)}
+.journalTitle{
+  font-weight:800;
+  margin:0;
+}
 
-    .dots{
-      display:flex;
-      gap:10px;
-      align-items:center;
-      margin-top:10px;
-      flex-wrap:wrap;
-    }
-    .dotLabel{color:var(--muted); font-size:12px}
+.journalText{
+  margin-top:10px;
+  padding:10px 12px;                 /* slightly tighter */
+  border-radius:14px;
+  background: rgba(15,23,41,.45);
+  border:1px solid rgba(255,255,255,.06);
+  white-space:pre-wrap;
+
+  /* ✅ Option A: fit content (no extra blank space) */
+  min-height: 0;
+}
+
+.journalText .label{
+  display:block;
+  color:var(--muted);
+  font-size:12px;
+  margin-bottom:4px;
+}
+
+.journalText .value{
+  display:block;
+  color:var(--text);
+  font-size:14px;
+  line-height:1.35;
+}
+
+.journalText .empty{
+  color:var(--muted);
+}
+
+.dots{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  margin-top:10px;
+  flex-wrap:wrap;
+}
+  .dotLabel{color:var(--muted); font-size:12px}
     .dotRow{display:flex; gap:8px; align-items:center}
     .dotBtn{
       width:18px;height:18px;border-radius:999px;
