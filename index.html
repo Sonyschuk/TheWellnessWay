@@ -363,6 +363,7 @@
         <button id="btnTodayView" class="primary">Today</button>
         <button id="btnWeeklyView">Weekly</button>
         <button id="btnMonthlyView">Monthly</button>
+        <button id="btnIO">Import / Export</button>
         <button id="btnClear">Clear Day</button>
         <button id="btnInstall" class="hidden">Install App</button>
       </div>
@@ -504,6 +505,50 @@
       </div>
     </div>
   </div>
+  <!-- Import / Export Modal -->
+<div class="overlay" id="ioOverlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ioTitle">
+    <div class="modalTop">
+      <div>
+        <h2 id="ioTitle">Import / Export</h2>
+        <div class="hint">Backup your data before updates, then restore it after.</div>
+      </div>
+      <button class="miniBtn" id="btnCloseIO">Close</button>
+    </div>
+
+    <div class="field">
+      <label>Export</label>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="miniBtn" id="btnDownloadJSON">Download Backup (.json)</button>
+        <button class="miniBtn" id="btnCopyJSON">Copy JSON</button>
+      </div>
+      <div class="hint" id="exportHint" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="field">
+      <label>Import</label>
+      <div class="hint">Import a backup file or paste JSON below.</div>
+
+      <input id="importFile" type="file" accept=".json,application/json,.txt" style="margin-top:10px;color:var(--muted);" />
+
+      <textarea id="importText" placeholder="Paste backup JSON here (optional)"></textarea>
+
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:10px;">
+        <label style="display:flex;gap:8px;align-items:center;color:var(--muted);font-size:12px;">
+          <input type="checkbox" id="chkReplace" />
+          Replace all existing data (unchecked = merge)
+        </label>
+      </div>
+    </div>
+
+    <div class="modalActions">
+      <button class="miniBtn" id="btnImportRun">Import</button>
+    </div>
+
+    <div class="hint" id="ioStatus" style="margin-top:10px;"></div>
+  </div>
+</div>
+
 
 <script>
   const PILLARS = ["Energy","Mind","Movement","Nourishment","Connection","Rest"];
