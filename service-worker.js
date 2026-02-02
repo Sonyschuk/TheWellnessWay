@@ -1,4 +1,4 @@
-const CACHE_NAME = "daily-flow-v11";
+const CACHE_NAME = "daily-flow-v12";
 
 const FILES_TO_CACHE = [
   "./",
