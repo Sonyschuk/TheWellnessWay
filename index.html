@@ -1198,7 +1198,7 @@
   if ("serviceWorker" in navigator) {
     window.addEventListener("load", async () => {
       try{
-        await navigator.serviceWorker.register("./service-worker.js", { scope: "./" });
+        await navigator.serviceWorker.register("./service-worker.js?v=2026-02-03-01", { scope: "./" });
       }catch(e){}
     });
   }
