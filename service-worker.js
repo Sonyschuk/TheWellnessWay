@@ -1,4 +1,4 @@
-const CACHE_NAME = "daily-flow-v3"; // <-- bump this every time you want to force refresh
+const CACHE_NAME = "daily-flow-cache-2026-02-03-01"; // <-- bump this every time you want to force refresh
 
 const FILES_TO_CACHE = [
   "./",
